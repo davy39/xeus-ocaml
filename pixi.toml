@@ -10,7 +10,7 @@ platforms = ["linux-64"]
 
 [feature.wasm-build.dependencies]
 emsdk = ">=3.1.46"
-cmake = "*"
+cmake = ">=4"
 
 [feature.wasm-build.tasks]
 configure_wasm_build = { cmd = "emsdk update && emsdk install 3.1.73 && emsdk activate 3.1.73", depends-on = [] }
