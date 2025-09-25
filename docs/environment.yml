@@ -1,8 +1,0 @@
-name: xeus-ocaml-docs
-
-channels:
-  - conda-forge
-
-dependencies:
-  - breathe
-  - sphinx_rtd_theme

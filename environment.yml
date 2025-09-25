@@ -1,8 +1,0 @@
-name: xeus-ocaml
-channels:
-  - conda-forge
-dependencies:
-  - xeus-ocaml=0.1.0
-  - notebook
-  - ipywidgets>=7.6
-  - jupyterlab=3

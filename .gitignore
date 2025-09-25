@@ -45,3 +45,8 @@ bld
 
 pixi.lock
 output/
+_output/
+
+.jupyterlite.doit.db
+
+.pixi/

@@ -5,6 +5,9 @@
       "-f",
       "{connection_file}"
   ],
+  "shared": {
+    "libxeus.so": "lib/libxeus.so"
+  },
   "language": "ocaml",
   "metadata": {"debugger": false
   

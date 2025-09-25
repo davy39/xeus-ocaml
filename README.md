@@ -76,6 +76,13 @@ http://xeus-ocaml.readthedocs.io
 - [nlohmann_json](https://github.com/nlohmann/json)
 - [cppzmq](https://github.com/zeromq/cppzmq)
 
+
+## Packaging
+
+```bash
+rattler-build build --recipe recipe/recipe.yaml -c  https://repo.prefix.dev/emscripten-forge-dev  -c conda-forge --target-platform emscripten-wasm32
+```
+
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) to know how to contribute and set up a

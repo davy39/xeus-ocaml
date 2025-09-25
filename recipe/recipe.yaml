@@ -1,5 +1,5 @@
 context:
-  version: 0.0.2
+  version: 0.0.3
 
 package:
   name: xeus-ocaml
@@ -9,7 +9,7 @@ source:
   path: ../
 
 build:
-  number: 2
+  number: 0
 
 requirements:
   build:
@@ -26,8 +26,8 @@ tests:
   - test -f $PREFIX/bin/xocaml.wasm
   - test -f $PREFIX/bin/xocaml.js
 about:
-  license: BSD-3-Clause
-  license_family: BSD-3
+  license: GPL-3.0-or-later
+  license_family: GPL3
   license_file: LICENSE
   summary: xeus-javascript
   homepage: https://github.com/davy39/xeus-ocaml

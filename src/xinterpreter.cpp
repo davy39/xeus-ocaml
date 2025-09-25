@@ -80,11 +80,8 @@ namespace xeus_ocaml
             }
             else
             {
-                // --- Step 5: Handle successful execution ---
-
                 // First, publish anything that was printed to standard output
                 if (!global_stdout_buffer.empty()) {
-                    // *** THIS IS THE CORRECTED LINE ***
                     publish_stream("stdout", global_stdout_buffer);
                 }
 

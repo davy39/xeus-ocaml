@@ -1,18 +1,18 @@
 #############################################################################
-# Copyright (c) 2025,
+#Copyright (c) 2024,
 #
-# Distributed under the terms of the GNU General Public License v3.
+#Distributed under the terms of the BSD 3-Clause License.
 #
-# The full license is in the file LICENSE, distributed with this software.
+#The full license is in the file LICENSE, distributed with this software.
 #############################################################################
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 4.0.0)
 project(xeus-ocaml)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 set(XEUS_OCAML_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Versioning
+# Versionning
 # ===========
 
 file(STRINGS "${XEUS_OCAML_INCLUDE_DIR}/xeus-ocaml/xeus_ocaml_config.hpp" version_defines
@@ -54,15 +54,10 @@ OPTION(XEUS_OCAML_USE_SHARED_XEUS_OCAML "Link xocaml  with the xeus shared libra
 if(EMSCRIPTEN)
     add_compile_definitions(XEUS_OCAML_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
-    string(REPLACE "-march=nocona" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REPLACE "-mtune=haswell" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REPLACE "-ftree-vectorize" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REPLACE "-fstack-protector-strong" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REPLACE "-fno-plt" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     SET(XEUS_OCAML_BUILD_STATIC ON)
     SET(XEUS_OCAML_BUILD_SHARED OFF)
     SET(XEUS_OCAML_BUILD_EXECUTABLE OFF)
-    SET(XEUS_OCAML_USE_SHARED_XEUS OFF)
+    SET(XEUS_OCAML_USE_SHARED_XEUS ON)
     SET(XEUS_OCAML_USE_SHARED_XEUS_OCAML OFF)
     SET(XEUS_OCAML_BUILD_TESTS OFF)
 endif()
@@ -71,9 +66,10 @@ endif()
 # Dependencies
 # ============
 
-
 set(xeus_REQUIRED_VERSION 5.0.0)
+set(xeus_lite_REQUIRED_VERSION 4.0.0)
 
+find_package(xeus-lite ${xeus_lite_REQUIRED_VERSION} REQUIRED)
 find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
 
 
@@ -87,17 +83,25 @@ if (MSVC)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+    message(STATUS "COMPILER ID: ${CMAKE_CXX_COMPILER_ID}")
     if(NOT EMSCRIPTEN)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-parameter -Wextra -Wreorder")
     endif()
 
+
     CHECK_CXX_COMPILER_FLAG("-std=c++17" HAS_CPP_17_FLAG)
     if (HAS_CPP_17_FLAG)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
     else ()
         message(FATAL_ERROR "Unsupported compiler -- xeus requires C++17 support!")
     endif ()
 endif ()
+
+if(EMSCRIPTEN)
+    # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
+    set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
+endif()
 
 
 # Source files
@@ -110,6 +114,7 @@ set(XEUS_OCAML_HEADERS
 
 set(XEUS_OCAML_SRC
     src/xinterpreter.cpp
+
 )
 
 set(XEUS_OCAML_MAIN_SRC
@@ -119,6 +124,13 @@ set(XEUS_OCAML_MAIN_SRC
 
 # Targets and link - Macros
 # =========================
+
+include(CheckCXXCompilerFlag)
+
+string(TOUPPER "${CMAKE_BUILD_TYPE}" U_CMAKE_BUILD_TYPE)
+
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib; ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+
 macro(xeus_ocaml_set_common_options target_name)
     if (MSVC)
         target_compile_options(${target_name} PUBLIC /wd4251 /wd4141)
@@ -156,6 +168,7 @@ macro(xeus_ocaml_set_common_options target_name)
     )
 endmacro()
 
+# Common macro kernels (xocaml)
 macro(xeus_ocaml_set_kernel_options target_name)
     if (XEUS_OCAML_USE_SHARED_XEUS_OCAML)
         target_link_libraries(${target_name} PRIVATE xeus-ocaml)
@@ -170,8 +183,10 @@ macro(xeus_ocaml_set_kernel_options target_name)
         find_package(Threads)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
+
 endmacro()
 
+# Common macro for shared and static library
 macro(xeus_ocaml_create_target target_name linkage output_name)
     string(TOUPPER "${linkage}" linkage_upper)
 
@@ -189,9 +204,12 @@ macro(xeus_ocaml_create_target target_name linkage output_name)
                           SOVERSION ${XEUS_OCAML_VERSION_MAJOR}
                           OUTPUT_NAME "lib${output_name}")
 
+    target_compile_features(${target_name} PUBLIC cxx_std_17)
+
+
+
     target_compile_definitions(${target_name} PUBLIC "XEUS_OCAML_EXPORTS")
 
-    target_compile_features(${target_name} PRIVATE cxx_std_17)
 
     target_include_directories(${target_name}
                                PUBLIC
@@ -211,9 +229,12 @@ macro(xeus_ocaml_create_target target_name linkage output_name)
         target_link_libraries(${target_name} PRIVATE "-undefined dynamic_lookup")
     endif ()
     if(NOT EMSCRIPTEN)
-        find_package(Threads)
+        find_package(Threads) # TODO: add Threads as a dependence of xeus-static?
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
+
+    target_link_libraries(${target_name} PUBLIC xeus-lite)
+
 endmacro()
 
 # xeus-ocaml
@@ -222,11 +243,14 @@ endmacro()
 set(XEUS_OCAML_TARGETS "")
 
 if (XEUS_OCAML_BUILD_SHARED)
+    # Build libraries
     xeus_ocaml_create_target(xeus-ocaml SHARED xeus-ocaml)
     list(APPEND XEUS_OCAML_TARGETS xeus-ocaml)
 endif ()
 
 if (XEUS_OCAML_BUILD_STATIC)
+    # On Windows, a static library should use a different output name
+    # to avoid the conflict with the import library of a shared one.
     if (CMAKE_HOST_WIN32)
         xeus_ocaml_create_target(xeus-ocaml-static STATIC xeus-ocaml-static)
     else ()
@@ -238,40 +262,33 @@ if (XEUS_OCAML_BUILD_STATIC)
     list(APPEND XEUS_OCAML_TARGETS xeus-ocaml-static)
 endif ()
 
-# xocaml
-# =======
-if (XEUS_OCAML_BUILD_EXECUTABLE)
-    find_package(xeus-zmq 1.0.2 REQUIRED)
-    add_executable(xocaml ${XEUS_OCAML_MAIN_SRC})
-    target_compile_features(xocaml PRIVATE cxx_std_17)
-    xeus_ocaml_set_common_options(xocaml)
-    xeus_ocaml_set_kernel_options(xocaml)
-    target_link_libraries(xocaml PRIVATE xeus-zmq)
-endif()
+target_link_options(xeus-ocaml-static
+    PUBLIC "SHELL: -s WASM_BIGINT=1"
+    PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+)
 
-if(EMSCRIPTEN)
-    include(WasmBuildOptions)
-    find_package(xeus-lite REQUIRED)
-    add_executable(xocaml src/main_emscripten_kernel.cpp )
-    set_target_properties(xocaml PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-    )
-    target_link_libraries(xocaml PRIVATE xeus-lite)
-    target_compile_options(xocaml PRIVATE -fPIC)
-    xeus_ocaml_set_kernel_options(xocaml)
-    xeus_wasm_compile_options(xocaml)
+include(WasmBuildOptions)
 
-    # Linker options for wasm.
-    # Add --pre-js to prepend our OCaml-generated JS to the final output.
-    target_link_options(
-        xocaml PRIVATE 
+add_executable(xocaml src/main_emscripten_kernel.cpp )
+target_compile_options(xocaml
+PRIVATE "-fPIC"
+PUBLIC "SHELL: -s WASM_BIGINT=1"
+PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+)
+XEUS_OCAML_set_kernel_options(xocaml)
+xeus_wasm_compile_options(xocaml)
+xeus_wasm_link_options(xocaml "web,worker")
+
+#
+target_link_options(xocaml
+    PUBLIC "SHELL: -s WASM_BIGINT=1"
+    PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+    PUBLIC "SHELL: -s MAIN_MODULE=1"
+    PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
+    PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
             "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/ocaml/_build/default/kernel.bc.js"
-            )
-    # This ensures 'ocaml_kernel' is available globally before the wasm module runs.
-    xeus_wasm_link_options(xocaml "web,worker")
-endif()
+)
+
 
 # Installation
 # ============
@@ -279,6 +296,7 @@ include(CMakePackageConfigHelpers)
 
 set(XEUS_OCAML_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE STRING "install path for xeus-ocamlConfig.cmake")
 
+# Install xeus-ocaml and xeus-ocaml-static
 if (XEUS_OCAML_BUILD_SHARED)
     install(TARGETS ${XEUS_OCAML_TARGETS}
             EXPORT ${PROJECT_NAME}-targets
@@ -287,22 +305,29 @@ if (XEUS_OCAML_BUILD_SHARED)
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xeus-ocaml)
 
+    # Makes the project importable from the build directory
     export(EXPORT ${PROJECT_NAME}-targets
            FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 endif ()
 
+# Install xocaml
 if (XEUS_OCAML_BUILD_EXECUTABLE)
     install(TARGETS xocaml
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if (XEUS_OCAML_BUILD_EXECUTABLE OR EMSCRIPTEN)
+    # Configuration and data directories for jupyter and xeus-ocaml
     set(XJUPYTER_DATA_DIR "share/jupyter"    CACHE STRING "Jupyter data directory")
+
+    # Install xocaml Jupyter kernelspec
     set(KERNELSPEC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels)
     install(DIRECTORY ${KERNELSPEC_DIR}
             DESTINATION ${XJUPYTER_DATA_DIR}
             PATTERN "*.in" EXCLUDE)
 
+
+    # Extra path for installing Jupyter kernelspec
     if (XEXTRA_JUPYTER_DATA_DIR)
         install(DIRECTORY ${KERNELSPEC_DIR}
                 DESTINATION ${XEXTRA_JUPYTER_DATA_DIR}
@@ -310,6 +335,7 @@ if (XEUS_OCAML_BUILD_EXECUTABLE OR EMSCRIPTEN)
     endif ()
 endif ()
 
+# Configure 'xeus-ocamlConfig.cmake' for a build tree
 set(XEUS_OCAML_CONFIG_CODE "####### Expanded from \@XEUS_OCAML_CONFIG_CODE\@ #######\n")
 set(XEUS_OCAML_CONFIG_CODE "${XEUS_OCAML_CONFIG_CODE}set(CMAKE_MODULE_PATH \"${CMAKE_CURRENT_SOURCE_DIR}/cmake;\${CMAKE_MODULE_PATH}\")\n")
 set(XEUS_OCAML_CONFIG_CODE "${XEUS_OCAML_CONFIG_CODE}##################################################")
@@ -317,6 +343,7 @@ configure_package_config_file(${PROJECT_NAME}Config.cmake.in
                               "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
                               INSTALL_DESTINATION ${PROJECT_BINARY_DIR})
 
+# Configure 'xeus-ocamlConfig.cmake.in for an install tree
 set(XEUS_OCAML_CONFIG_CODE "")
 configure_package_config_file(${PROJECT_NAME}Config.cmake.in
                               "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${PROJECT_NAME}Config.cmake"
