@@ -1,88 +1,98 @@
+# This section defines the project's general metadata and configuration.
 [project]
-name = "xeus-ocaml-wasm-build"
-channels = ["conda-forge", "https://repo.prefix.dev/emscripten-forge-dev"]
-platforms = ["linux-64","emscripten-wasm32"]
+name = "xeus-ocaml"
+channels = [
+    "conda-forge",
+    "https://repo.prefix.dev/emscripten-forge-dev" # Channel for Emscripten-specific packages
+]
+platforms = [
+    "linux-64",         # Linux 64-bit platform
+    "emscripten-wasm32"
+]
 
-# Environnement pour compiler en WebAssembly avec Emscripten
 
-[feature.wasm-build]
-platforms = ["linux-64"]
 
-[feature.wasm-build.dependencies]
+[feature.build]
+platforms = ["linux-64"] 
+
+###############################################################################
+# Default Feature: Environment for installing emsdk and JupyterLite
+# This feature is primarily for Linux-64 to set up the development environment.
+###############################################################################
+
+[feature.build.dependencies]
+# emsdk: Emscripten SDK, required for WebAssembly compilation.
 emsdk = ">=3.1.46"
-cmake = ">=4"
-
-[feature.wasm-build.tasks]
-configure_wasm_build = { cmd = "emsdk update && emsdk install 3.1.73 && emsdk activate 3.1.73", depends-on = [] }
-
-
-[feature.wasm-host]
-platforms = ["emscripten-wasm32"]
-
-# Environnement cible contenant les dépendances d'exécution WASM
-[feature.wasm-host.dependencies]
-xeus = "*"
-xeus-lite = "*"
-nlohmann_json ="*"
-
-
-
-[feature.wasm-host.tasks]
-setup_wasm = { cmd = "pixi run -e wasm-build configure_wasm_build", inputs = ["pixi.lock"] }
-
-
-# Configure le projet avec emcmake
-
-
-
-configure_ocaml_kernel = { cmd = """
-bash -c 'source ".pixi/envs/wasm-build/lib/python3.13/site-packages/emsdk/emsdk_env.sh" && \
-export EMPACK_PREFIX=../.pixi/envs/wasm-build && \
-export PREFIX=../.pixi/envs/default && \
-export CMAKE_PREFIX_PATH=$PREFIX && \
-export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX && \
-mkdir -p build && cd build && \
-emcmake cmake \
--DCMAKE_BUILD_TYPE=Release \
--DCMAKE_PREFIX_PATH=$PREFIX \
--DCMAKE_INSTALL_PREFIX=$PREFIX \
--DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON \
-..'
-""", depends-on = ["setup_wasm"] }
-
-
-# Construit le kernel
-build_ocaml_kernel = { cmd = "make -C build -j", depends-on = ["configure_ocaml_kernel"] }
-
-# Installe le kernel dans le préfixe de l'environnement
-install_ocaml_kernel = { cmd = "make -C build install", depends-on = ["build_ocaml_kernel"] }
-
-
-[feature.jupyter]
-platforms = ["linux-64"]
-
-# Environnement pour construire et servir JupyterLite
-[feature.jupyter.dependencies]
+# jupyterlab-language-pack-fr-FR: French language pack for JupyterLab.
 jupyterlab-language-pack-fr-FR = "*"
-jupyterlite-xeus = "==4.2.0"
+# jupyterlite-xeus: JupyterLite with xeus kernel support.
+jupyterlite-xeus = "*"
+# jupyter_server: Jupyter server components.
 jupyter_server = "*"
+# ipywidgets: Interactive widgets for Jupyter notebooks.
 ipywidgets = "*"
+# jupyterlab: The JupyterLab IDE.
 jupyterlab = "*"
 
-# Tâches pour la compilation du kernel OCaml en WASM
-# Ces tâches s'exécuteront dans l'environnement 'wasm-build'
-[feature.jupyter.tasks]
+[feature.build.tasks]
+# configure_wasm: Updates and installs a specific version of emsdk, then activates it.
+configure_wasm = { cmd = "emsdk update && emsdk install 3.1.73 && emsdk activate 3.1.73", depends-on = [] }
 
-setup_ocaml = { cmd = "pixi run -e default install_ocaml_kernel"}
+# setup_ocaml: Builds the xeus-ocaml kernel by running a task in the 'kernels' environment.
+install_kernel = { cmd = "pixi run -e kernels install_kernel" }
 
-# Construit l'application JupyterLite
-jupyter_build = { cmd = "jupyter lite build --XeusAddon.prefix=.pixi/envs/default", depends-on = ["setup_ocaml"] }
+# jupyter_build: Builds the JupyterLite application, specifying the kernel prefix.
+build_jupyter = { cmd = "jupyter lite build --XeusAddon.prefix=.pixi/envs/kernels", depends-on = ["install_kernel"] }
 
-# Sert l'application JupyterLite
-jupyter_serve = { cmd = "python -m http.server 8000 --directory _output", depends-on = ["jupyter_build"] }
+# jupyter_serve: Serves the built JupyterLite application using a Python HTTP server.
+serve_jupyter = { cmd = "python -m http.server 8000 --directory _output", depends-on = ["build_jupyter"] }
 
 
+###############################################################################
+# Kernels Feature: Environment for WASM runtime dependencies and kernel building
+# This feature is active for the emscripten-wasm32 platform.
+###############################################################################
+
+[feature.kernels]
+platforms = ["emscripten-wasm32"] # This feature is active only on Emscripten WebAssembly.
+
+[feature.kernels.dependencies]
+# xeus: Core C++ backend for Jupyter kernels.
+xeus = "*"
+# xeus-lite: Lightweight xeus components for JupyterLite.
+xeus-lite = "*"
+xeus-javascript = "*"
+# nlohmann_json: JSON library for C++.
+nlohmann_json ="*"
+
+[feature.kernels.tasks]
+# setup_wasm: Configures the WebAssembly environment by running 'configure_wasm' from the default feature.
+configure_wasm = { cmd = "pixi run -e default configure_wasm", depends-on = [] }
+
+# configure_kernel: Configures the xeus-ocaml kernel for WebAssembly compilation.
+# This involves sourcing emsdk environment, setting various paths, and running emcmake.
+configure_kernel = { cmd = """
+bash -c 'source ".pixi/envs/default/lib/python3.13/site-packages/emsdk/emsdk_env.sh" && \\
+export EMPACK_PREFIX=../.pixi/envs/default && \\
+export PREFIX=../.pixi/envs/kernels && \\
+export CMAKE_PREFIX_PATH=$PREFIX && \\
+export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX && \\
+mkdir -p build && cd build && \\
+emcmake cmake \\
+-DCMAKE_BUILD_TYPE=Release \\
+-DCMAKE_PREFIX_PATH=$PREFIX \\
+-DCMAKE_INSTALL_PREFIX=$PREFIX \\
+-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON \\
+..'
+""", depends-on = ["configure_wasm"] }
+
+# build_kernel: Builds the xeus-ocaml kernel using make.
+build_kernel = { cmd = "make -C build -j", depends-on = ["configure_kernel"] }
+
+# install: Installs the built kernel into the environment's prefix.
+install_kernel = { cmd = "make -C build install", depends-on = ["build_kernel"] }
+
+# This section defines the different environments available and their associated features.
 [environments]
-default = { features = ["wasm-host"] }
-wasm-build = { features = ["wasm-build"] }
-jupyter = { features = ["jupyter"] }
+kernels = { features = ["kernels"] } # The kernels environment uses the 'kernels' feature.
+default = { features = ["build"] } # The default environment uses the 'build' feature.
