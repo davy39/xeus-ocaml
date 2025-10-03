@@ -9,7 +9,7 @@
   "language": "ocaml",
   "metadata": {"debugger": false,
   "shared": {
-    "x-ocaml.worker+effects.js": "lib/x-ocaml.worker+effects.js",
+    "x-ocaml.worker+effects.js": "lib/x-ocaml.worker+effects.js"
   }
   }
 }
