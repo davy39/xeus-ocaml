@@ -10,8 +10,6 @@
   "metadata": {"debugger": false,
   "shared": {
     "x-ocaml.worker+effects.js": "lib/x-ocaml.worker+effects.js",
-    "x-ocaml.comm.js": "lib/x-ocaml.comm.js"
-
   }
   }
 }
