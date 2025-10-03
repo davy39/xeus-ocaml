@@ -1,0 +1,78 @@
+name: Continuous Integration and Auto-Tagging
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # Needed to push tags
+
+jobs:
+  ci_build_and_tag:
+    name: Build, Test, and Auto-Tag
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }} # Use PAT to allow triggering the release workflow
+          fetch-depth: 0
+
+      - name: Install CMake
+        uses: ssrobins/install-cmake@v1
+
+      - name: Setup Pixi environment
+        uses: prefix-dev/setup-pixi@v0.9.1
+        with:
+          cache: true
+
+      - name: Check for changed files
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            kernel:
+              - 'src/**'
+              - 'include/**'
+              - 'CMakeLists.txt'
+              - 'pixi.toml'
+            extension:
+              - 'extension/**'
+            recipe:
+              - 'recipe/recipe.yaml'
+
+      - name: Build and install kernel (if source changed)
+        if: steps.filter.outputs.kernel
+        run: pixi run -e kernel install
+
+      - name: Install & Build JupyterLab extension (if source changed)
+        if: steps.filter.outputs.extension
+        run: |
+          pixi run -e default extension-setup
+          pixi run -e default extension-build
+
+      - name: Extract version from recipe (if recipe changed)
+        if: steps.filter.outputs.recipe
+        id: get_version
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq e '.context.version' 'recipe/recipe.yaml'
+
+      - name: Create and Push Tag on Version Bump (if recipe changed)
+        if: steps.filter.outputs.recipe
+        run: |
+          VERSION=${{ steps.get_version.outputs.result }}
+          TAG="v${VERSION}"
+          echo "Version from recipe is ${VERSION}"
+          
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists. No new tag will be created."
+          else
+            echo "Tag ${TAG} does not exist. Creating and pushing new tag."
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "${TAG}" -m "Release version ${VERSION}"
+            git push origin "${TAG}"
+          fi
