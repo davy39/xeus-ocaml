@@ -1,3 +1,10 @@
+/**
+ * @file This file defines the main JupyterLab plugin for executing frontend
+ * commands triggered by kernel messages.
+ * @author Davy Cottet
+ * @copyright 2025
+ */
+
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -6,30 +13,58 @@ import {
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IKernelConnection } from '@jupyterlab/services/lib/kernel/kernel';
 
+/**
+ * The main plugin object exported for JupyterLab.
+ */
 const plugin: JupyterFrontEndPlugin<void> = {
+  // A unique identifier for the plugin.
   id: 'jupyterlab-commands-executor:plugin',
   description: 'A JupyterLab extension to execute UI commands from kernel comm messages.',
+  // Automatically start the plugin on JupyterLab load.
   autoStart: true,
-  // On requiert INotebookTracker pour suivre les notebooks actifs.
+  // We require INotebookTracker to monitor active notebook panels and their kernels.
   requires: [INotebookTracker],
+  /**
+   * The activation function for the plugin. This is the main entry point.
+   * It sets up listeners to register comm targets on notebook kernels as they
+   * become available.
+   *
+   * @param app The JupyterFrontEnd application instance.
+   * @param notebookTracker The service that tracks notebook widgets.
+   */
   activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
-    console.log('[CommExecutor] >>> ACTIVATE: Plugin (version INotebookTracker) is starting.');
+    console.log('[CommExecutor] >>> ACTIVATE: Plugin is starting.');
 
+    // The unique name used by the kernel to open a communication channel with this extension.
     const commTargetName = 'jupyterlab-commands-executor';
+
+    // A set to keep track of kernel IDs for which the comm target has already been registered.
+    // This prevents redundant registrations on the same kernel.
     const registeredKernels = new Set<string>();
 
+    /**
+     * Registers the comm target on a given kernel connection.
+     * This function sets up the listener that will handle incoming messages from the kernel.
+     *
+     * @param kernel The kernel connection to register the comm target on.
+     */
     const registerCommTarget = (kernel: IKernelConnection): void => {
+      // Avoid re-registering on the same kernel.
       if (registeredKernels.has(kernel.id)) {
         return;
       }
       console.log(`[CommExecutor] >>> KERNEL: Attempting to register comm target on kernel ${kernel.id}`);
       
+      // This callback is executed when the kernel opens a comm channel with our target name.
       kernel.registerCommTarget(commTargetName, (comm, openMsg) => {
         console.log('[CommExecutor] >>> COMM: Comm channel opened by kernel!', { openMsg });
 
+        // The kernel sends a single message upon opening the comm to execute a command.
+        // We extract the command and its arguments from the open message payload.
         const data = openMsg.content.data as { command: string; args?: any };
         const { command, args } = data;
 
+        // Ensure a command was actually provided in the message.
         if (!command) {
           console.warn('[CommExecutor] >>> COMM: Received open message without a "command" field.');
           comm.close();
@@ -37,34 +72,44 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
 
         console.log(`[CommExecutor] >>> EXEC: Executing UI command from open message: '${command}'`, args || {});
+        
+        // Use the JupyterLab command registry to execute the requested command.
         app.commands.execute(command, args || {})
           .then(result => {
             console.log(`[CommExecutor] >>> EXEC: Command '${command}' executed successfully.`);
-            comm.send({ status: 'success' }); // Envoyer une confirmation simple
+            // Send a simple confirmation back to the kernel (optional but good practice).
+            comm.send({ status: 'success' });
           })
           .catch(error => {
             console.error(`[CommExecutor] >>> EXEC: Error executing command '${command}':`, error);
             comm.send({ status: 'error', error: (error as Error).message });
           })
           .finally(() => {
-            // Fermer le comm après l'opération car c'est un message unique.
+            // This is a one-shot communication, so we close the comm immediately after execution.
             comm.close();
           });
       });
 
+      // Add the kernel ID to the set to prevent future re-registrations.
       registeredKernels.add(kernel.id);
       console.log(`[CommExecutor] >>> KERNEL: Comm target "${commTargetName}" successfully registered for kernel: ${kernel.id}`);
       
+      // Set up a cleanup function for when the kernel is disposed (e.g., shut down).
       kernel.disposed.connect(() => {
         console.log(`[CommExecutor] >>> KERNEL: Kernel ${kernel.id} disposed. Cleaning up.`);
         registeredKernels.delete(kernel.id);
       });
     };
 
-    // Cette fonction sera appelée pour chaque panneau de notebook.
+    /**
+     * Sets up comm registration for a specific notebook panel.
+     * It waits for the session to be ready and handles kernel changes.
+     *
+     * @param panel The NotebookPanel to connect to.
+     */
     const connectToNotebook = (panel: NotebookPanel) => {
-      // Attendre que la session du notebook soit prête avant de faire quoi que ce soit.
-      // C'est une étape cruciale pour éviter les race conditions.
+      // Crucially, wait for the session context to be ready. This ensures that the
+      // kernel is available and avoids race conditions on notebook load.
       panel.sessionContext.ready.then(() => {
         console.log(`[CommExecutor] >>> NOTEBOOK: Session ready for ${panel.context.path}`);
         const kernel = panel.sessionContext.session?.kernel;
@@ -73,7 +118,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
       });
 
-      // Écouter les futurs changements de noyau pour ce panneau spécifique.
+      // Also, listen for any subsequent kernel changes (e.g., user switches from Python to OCaml).
+      // This ensures we register the comm target on the new kernel.
       panel.sessionContext.kernelChanged.connect((_, args) => {
         if (args.newValue) {
           console.log(`[CommExecutor] >>> NOTEBOOK: Kernel changed for ${panel.context.path}`);
@@ -82,7 +128,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       });
     };
 
-    // Quand un nouveau notebook est ajouté (ouvert), on s'y connecte.
+    // When a new notebook widget is added (i.e., a notebook is opened),
+    // we start the process of connecting our logic to it.
     notebookTracker.widgetAdded.connect((_, panel) => {
       console.log('[CommExecutor] >>> SIGNAL: widgetAdded fired.');
       connectToNotebook(panel);
@@ -92,4 +139,5 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
+// Export the plugin as the default export for JupyterLab to discover.
 export default plugin;
