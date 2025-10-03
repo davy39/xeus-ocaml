@@ -7,7 +7,6 @@ try {
     Module.ocamlWorker.onerror = (error) => {
         console.error('[pre.js] FATAL ERROR IN WORKER:', error);
     };
-
     
 } catch (e) {
     // This will catch synchronous errors, e.g., if the path is syntactically invalid

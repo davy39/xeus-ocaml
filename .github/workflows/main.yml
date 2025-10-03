@@ -21,6 +21,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+      
+        
   #============================================================================
   # JOB 1: Continuous Integration on push to the `main` branch
   # This job builds the kernel/extension based on changed files and creates tags.
@@ -35,7 +37,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetch all history and tags to check for existing tags later
+          # Fetch all history for all branches and tags.
+          # This is CRITICAL for paths-filter to correctly compare changes.
           fetch-depth: 0
 
       - name: Setup Pixi environment
@@ -47,30 +50,34 @@ jobs:
         uses: dorny/paths-filter@v3
         id: filter
         with:
+          # Define the filters for different parts of the codebase.
+          # The action will create a boolean output for each filter name.
           filters: |
-            kernel_src:
+            kernel:
               - 'src/**'
               - 'include/**'
               - 'CMakeLists.txt'
               - 'pixi.toml'
-            extension_src:
+            extension:
               - 'extension/**'
             recipe:
               - 'recipe/recipe.yaml'
 
       - name: Build and install kernel (if source changed)
-        if: steps.filter.outputs.kernel_src == 'true'
+        # CORRECTED SYNTAX: Use the output directly as a boolean.
+        if: steps.filter.outputs.kernel == 'true'
         run: pixi run -e kernel install
 
       - name: Install & Build JupyterLab extension (if source changed)
-        if: steps.filter.outputs.extension_src == 'true'
+        # CORRECTED SYNTAX: Use the output directly as a boolean.
+        if: steps.filter.outputs.extension == 'true'
         run: |
           pixi run -e default extension-setup
           pixi run -e default extension-build
 
       - name: Create Tag on Version Bump (if recipe changed)
+        # CORRECTED SYNTAX: Use the output directly as a boolean.
         if: steps.filter.outputs.recipe == 'true'
-        # This step uses a dedicated action to ensure `yq` is available
         uses: mikefarah/yq@v4
         with:
           cmd: |
@@ -78,6 +85,7 @@ jobs:
             TAG="v${VERSION}"
             echo "Version from recipe is ${VERSION}"
             
+            # Check if the tag already exists to prevent errors
             if git rev-parse "${TAG}" >/dev/null 2>&1; then
               echo "Tag ${TAG} already exists. No new tag will be created."
             else
@@ -87,6 +95,8 @@ jobs:
               git tag "${TAG}" -m "Release version ${VERSION}"
               git push origin "${TAG}"
             fi
+
+    
 
   #============================================================================
   # JOB 2: Build, package, and create a release when a new tag is pushed

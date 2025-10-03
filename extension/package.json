@@ -1,5 +1,5 @@
 {
-  "name": "jupyterlab-commands-executor",
+  "name": "xeus-ocaml",
   "version": "0.1.0",
   "description": "A JupyterLab extension to execute UI commands from kernel comm messages.",
   "keywords": [
@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/davy39/jupyterlab-commands-executor",
+  "homepage": "https://github.com/davy39/xeus-ocaml",
   "bugs": {
-    "url": "https://github.com/davy39/jupyterlab-commands-executor/issues"
+    "url": "https://github.com/davy39/xeus-ocaml/issues"
   },
   "license": "BSD-3-Clause",
   "author": {
@@ -23,7 +23,7 @@
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/davy39/jupyterlab-commands-executor.git"
+    "url": "https://github.com/davy39/xeus-ocaml.git"
   },
   "scripts": {
     "build": "tsc",
