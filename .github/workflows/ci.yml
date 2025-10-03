@@ -61,7 +61,7 @@ jobs:
           cmd: yq e '.context.version' 'recipe/recipe.yaml'
 
       - name: Create and Push Tag on Version Bump (if recipe changed)
-        if: steps.filter.outputs.recipe
+        if: steps.filter.outputs.recipe  == 'true'
         run: |
           VERSION=${{ steps.get_version.outputs.result }}
           TAG="v${VERSION}"
