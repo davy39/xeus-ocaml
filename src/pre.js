@@ -1,6 +1,6 @@
 try {
 
-    Module['ocamlWorker'] = new Worker('/xeus/kernel/xocaml/x-ocaml.worker+effects.js');
+    Module['ocamlWorker'] = new Worker('../../../../xeus/kernel/xocaml/x-ocaml.worker+effects.js');
 
     // 4. Set up an onerror handler to catch loading errors (like 404s).
     // This is CRITICAL for debugging worker loading issues.
