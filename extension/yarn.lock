@@ -1978,11 +1978,11 @@ __metadata:
   linkType: hard
 
 "baseline-browser-mapping@npm:^2.8.9":
-  version: 2.8.10
-  resolution: "baseline-browser-mapping@npm:2.8.10"
+  version: 2.8.11
+  resolution: "baseline-browser-mapping@npm:2.8.11"
   bin:
     baseline-browser-mapping: dist/cli.js
-  checksum: 42e28fb10472bf35abdcb881e599d8b968e3d0d723380a8e7ca1b0424811f111d89f78b1121d9c3cadf777e57af7a23cb0a3931e4135d94f70653b353fde0cba
+  checksum: 250913ed3eeda6b6836ce7519ac52009627f021e1f6ac5994bc5a488df85c46836c8f00f2e08d46bfc7ca70a195f971f90ac26e5f5438125fff7ea8385f2b1e0
   languageName: node
   linkType: hard
 
@@ -3249,18 +3249,6 @@ __metadata:
   checksum: 0b40f712900ad0c846681ea2db23b6684b9d5eedf55807b4708c656f5894b63507d0e28ae10aa1bddbea551241035afe62b6df0800fc94c2e2806a7f3adecd7c
   languageName: node
   linkType: hard
-
-"jupyterlab-commands-executor@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "jupyterlab-commands-executor@workspace:."
-  dependencies:
-    "@jupyterlab/application": ~4.4.0
-    "@jupyterlab/builder": ~4.4.0
-    "@jupyterlab/notebook": ~4.4.0
-    rimraf: ^5.0.0
-    typescript: ~5.3.0
-  languageName: unknown
-  linkType: soft
 
 "kind-of@npm:^6.0.2":
   version: 6.0.3
@@ -4717,6 +4705,18 @@ __metadata:
   checksum: d64ef1631227bd0c5fe21b3eb3646c9c91229402fb963d12d87b49af0a1ef757277083af23a5f85742bae1e520feddfb434cb882ea59249b15673c16dc3f36e0
   languageName: node
   linkType: hard
+
+"xeus-ocaml@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "xeus-ocaml@workspace:."
+  dependencies:
+    "@jupyterlab/application": ~4.4.0
+    "@jupyterlab/builder": ~4.4.0
+    "@jupyterlab/notebook": ~4.4.0
+    rimraf: ^5.0.0
+    typescript: ~5.3.0
+  languageName: unknown
+  linkType: soft
 
 "xml-name-validator@npm:^4.0.0":
   version: 4.0.0
