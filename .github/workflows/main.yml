@@ -40,6 +40,9 @@ jobs:
           # Fetch all history for all branches and tags.
           # This is CRITICAL for paths-filter to correctly compare changes.
           fetch-depth: 0
+          
+      - name: Install CMake
+        uses: ssrobins/install-cmake@v1
 
       - name: Setup Pixi environment
         uses: prefix-dev/setup-pixi@v0.9.1
