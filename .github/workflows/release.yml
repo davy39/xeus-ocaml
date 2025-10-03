@@ -25,6 +25,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install CMake
+        uses: ssrobins/install-cmake@v1
+  
       - name: Setup Pixi environment
         uses: prefix-dev/setup-pixi@v0.9.1
         with:
