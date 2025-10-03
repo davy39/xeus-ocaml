@@ -242,7 +242,7 @@ namespace xeus_ocaml
         // Return an empty reply immediately. Will need double SHIT+TAB.
         return xeus::create_inspect_reply(false, {}, {});
     }
-
+    
     void interpreter::execute_request_impl(
         send_reply_callback cb,
         int execution_counter,
@@ -251,12 +251,23 @@ namespace xeus_ocaml
         nl::json
     )
     {
+        // Create a mutable copy of the input code to be processed.
+        std::string processed_code = code;
+
+        // Use a loop to find and replace all occurrences of ";;" with a space.
+        size_t pos = 0;
+        while ((pos = processed_code.find(";;", pos)) != std::string::npos) {
+            processed_code.replace(pos, 2, " ");
+            // Move past the position of the replacement to continue searching.
+            pos += 1;
+        }
+
         // Store the callback and execution count to be used when the async response arrives.
         int request_id = ++m_request_id_counter;
         m_pending_requests[request_id] = {std::move(cb), execution_counter};
 
-        // Send the code to the OCaml worker for evaluation.
-        nl::json request_json = {"Eval", request_id, execution_counter, code};
+        // Send the modified code to the OCaml worker for evaluation.
+        nl::json request_json = {"Eval", request_id, execution_counter, processed_code};
         send_to_worker(request_json);
     }
 

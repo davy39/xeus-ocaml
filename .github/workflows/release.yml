@@ -57,9 +57,8 @@ jobs:
       - name: Upload Conda Package to prefix.dev Channel
         run: |
           for pkg in $(find output -type f \( -name "*.conda" -o -name "*.tar.bz2" \) ); do
-            echo "Uploading ${pkg} to prefix.dev channel 'my-channel'"
-            # Replace 'my-channel' with your actual channel name on prefix.dev
-            rattler-build upload prefix -c my-channel "${pkg}"
+            echo "Uploading ${pkg}"
+            rattler-build upload prefix -c emscripten "${pkg}"
           done
 
       - name: Create GitHub Release and Upload Conda Package
