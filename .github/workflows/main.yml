@@ -21,8 +21,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-      
-        
   #============================================================================
   # JOB 1: Continuous Integration on push to the `main` branch
   # This job builds the kernel/extension based on changed files and creates tags.
@@ -37,8 +35,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetch all history for all branches and tags.
-          # This is CRITICAL for paths-filter to correctly compare changes.
+          # THIS IS THE CRITICAL LINE THAT WAS MISSING.
+          # It uses your Personal Access Token to grant push permissions.
+          token: ${{ secrets.PAT }}
           fetch-depth: 0
 
       - name: Install CMake
@@ -53,8 +52,6 @@ jobs:
         uses: dorny/paths-filter@v3
         id: filter
         with:
-          # Define the filters for different parts of the codebase.
-          # The action will create a boolean output for each filter name.
           filters: |
             kernel:
               - 'src/**'
@@ -67,13 +64,11 @@ jobs:
               - 'recipe/recipe.yaml'
 
       - name: Build and install kernel (if source changed)
-        # CORRECTED SYNTAX: Use the output directly as a boolean.
-        if: steps.filter.outputs.kernel == 'true'
+        if: steps.filter.outputs.kernel
         run: pixi run -e kernel install
 
       - name: Install & Build JupyterLab extension (if source changed)
-        # CORRECTED SYNTAX: Use the output directly as a boolean.
-        if: steps.filter.outputs.extension == 'true'
+        if: steps.filter.outputs.extension
         run: |
           pixi run -e default extension-setup
           pixi run -e default extension-build
@@ -83,19 +78,15 @@ jobs:
         id: get_version
         uses: mikefarah/yq@v4
         with:
-          # Use the yq action ONLY to extract the version.
-          # Its output will be available in `steps.get_version.outputs.result`.
           cmd: yq e '.context.version' 'recipe/recipe.yaml'
 
       - name: Create and Push Tag on Version Bump (if recipe changed)
         if: steps.filter.outputs.recipe
         run: |
-          # Use the output from the 'get_version' step.
           VERSION=${{ steps.get_version.outputs.result }}
           TAG="v${VERSION}"
           echo "Version from recipe is ${VERSION}"
           
-          # This git logic now runs on the main runner, where git is available.
           if git rev-parse "${TAG}" >/dev/null 2>&1; then
             echo "Tag ${TAG} already exists. No new tag will be created."
           else
@@ -103,10 +94,10 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git tag "${TAG}" -m "Release version ${VERSION}"
+            # This push is now authenticated via the PAT provided in the checkout step
             git push origin "${TAG}"
           fi
       
-
   #============================================================================
   # JOB 2: Build, package, and create a release when a new tag is pushed
   #============================================================================
@@ -115,6 +106,8 @@ jobs:
     # This job ONLY runs when a tag is pushed.
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+    # THIS JOB IS INDEPENDENT. It is triggered by the tag push event, not by the ci_build job.
+    # The `needs` key has been removed.
     
     steps:
       - name: Checkout repository
@@ -152,8 +145,6 @@ jobs:
       - name: Create GitHub Release and Upload Conda Package
         uses: softprops/action-gh-release@v2
         with:
-          # This action automatically uses the tag that triggered the workflow
-          # and uploads the built conda package as an asset.
           files: ${{ steps.build-conda.outputs.pkg-path }}
           
   #============================================================================
@@ -161,7 +152,6 @@ jobs:
   #============================================================================
   deploy_pages:
     name: Deploy to GitHub Pages
-    # This job only runs when a tag is pushed and after the release job is complete.
     if: startsWith(github.ref, 'refs/tags/')
     needs: release_and_deploy
     runs-on: ubuntu-latest
