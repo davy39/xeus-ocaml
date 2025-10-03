@@ -44,17 +44,17 @@ jobs:
               - 'recipe/recipe.yaml'
 
       - name: Build and install kernel (if source changed)
-        if: steps.filter.outputs.kernel
+        if: steps.filter.outputs.kernel == 'true'
         run: pixi run -e kernel install
 
       - name: Install & Build JupyterLab extension (if source changed)
-        if: steps.filter.outputs.extension
+        if: steps.filter.outputs.extension == 'true'
         run: |
           pixi run -e default extension-setup
           pixi run -e default extension-build
 
       - name: Extract version from recipe (if recipe changed)
-        if: steps.filter.outputs.recipe
+        if: steps.filter.outputs.recipe == 'true'
         id: get_version
         uses: mikefarah/yq@v4
         with:
