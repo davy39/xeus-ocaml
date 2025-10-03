@@ -40,7 +40,7 @@ jobs:
           # Fetch all history for all branches and tags.
           # This is CRITICAL for paths-filter to correctly compare changes.
           fetch-depth: 0
-          
+
       - name: Install CMake
         uses: ssrobins/install-cmake@v1
 
@@ -78,28 +78,34 @@ jobs:
           pixi run -e default extension-setup
           pixi run -e default extension-build
 
-      - name: Create Tag on Version Bump (if recipe changed)
-        # CORRECTED SYNTAX: Use the output directly as a boolean.
-        if: steps.filter.outputs.recipe == 'true'
+      - name: Extract version from recipe (if recipe changed)
+        if: steps.filter.outputs.recipe
+        id: get_version
         uses: mikefarah/yq@v4
         with:
-          cmd: |
-            VERSION=$(yq e '.context.version' 'recipe/recipe.yaml')
-            TAG="v${VERSION}"
-            echo "Version from recipe is ${VERSION}"
-            
-            # Check if the tag already exists to prevent errors
-            if git rev-parse "${TAG}" >/dev/null 2>&1; then
-              echo "Tag ${TAG} already exists. No new tag will be created."
-            else
-              echo "Tag ${TAG} does not exist. Creating and pushing new tag."
-              git config --global user.name "github-actions[bot]"
-              git config --global user.email "github-actions[bot]@users.noreply.github.com"
-              git tag "${TAG}" -m "Release version ${VERSION}"
-              git push origin "${TAG}"
-            fi
+          # Use the yq action ONLY to extract the version.
+          # Its output will be available in `steps.get_version.outputs.result`.
+          cmd: yq e '.context.version' 'recipe/recipe.yaml'
 
-    
+      - name: Create and Push Tag on Version Bump (if recipe changed)
+        if: steps.filter.outputs.recipe
+        run: |
+          # Use the output from the 'get_version' step.
+          VERSION=${{ steps.get_version.outputs.result }}
+          TAG="v${VERSION}"
+          echo "Version from recipe is ${VERSION}"
+          
+          # This git logic now runs on the main runner, where git is available.
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists. No new tag will be created."
+          else
+            echo "Tag ${TAG} does not exist. Creating and pushing new tag."
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "${TAG}" -m "Release version ${VERSION}"
+            git push origin "${TAG}"
+          fi
+      
 
   #============================================================================
   # JOB 2: Build, package, and create a release when a new tag is pushed
