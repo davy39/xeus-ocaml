@@ -54,10 +54,20 @@ jobs:
             -c conda-forge 
             --target-platform emscripten-wasm32
 
+      - name: Upload Conda Package to prefix.dev Channel
+        run: |
+          for pkg in $(find output -type f \( -name "*.conda" -o -name "*.tar.bz2" \) ); do
+            echo "Uploading ${pkg} to prefix.dev channel 'my-channel'"
+            # Replace 'my-channel' with your actual channel name on prefix.dev
+            rattler-build upload prefix -c my-channel "${pkg}"
+          done
+
       - name: Create GitHub Release and Upload Conda Package
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.build-conda.outputs.pkg-path }}
+              files: |
+                output/*.conda
+                output/*.tar.bz2
           
   deploy_pages:
     name: Deploy to GitHub Pages
