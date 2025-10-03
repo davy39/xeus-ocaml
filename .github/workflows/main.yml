@@ -1,103 +1,158 @@
-name: Build and deploy xeus-ocaml
+name: CI, Release, and Deploy
 
 on:
-  # Runs on pushes to the main branch
+  # Trigger on pushes to the main branch and on new tags
   push:
     branches: ["main"]
+    tags: ["v*.*.*"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Grant permissions for GitHub token
 permissions:
-  contents: read
+  contents: write # Needed to create releases, upload assets, and push tags
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Concurrency settings to manage deployments
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build:
+  #============================================================================
+  # JOB 1: Continuous Integration on push to the `main` branch
+  # This job builds the kernel/extension based on changed files and creates tags.
+  #============================================================================
+  ci_build:
+    name: CI Build & Auto-Tag
+    # This job ONLY runs on pushes to the 'main' branch, not on tags.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pages: write
-
+    
     steps:
-      - uses: actions/checkout@v5
-
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-
-      - name: Set-up OCaml
-        uses: ocaml/setup-ocaml@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          ocaml-compiler: 5
+          # Fetch all history and tags to check for existing tags later
+          fetch-depth: 0
 
-      - name: Build js_of_ocaml kernel
+      - name: Setup Pixi environment
+        uses: prefix-dev/setup-pixi@v0.9.1
+        with:
+          cache: true
+
+      - name: Check for changed files
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            kernel_src:
+              - 'src/**'
+              - 'include/**'
+              - 'CMakeLists.txt'
+              - 'pixi.toml'
+            extension_src:
+              - 'extension/**'
+            recipe:
+              - 'recipe/recipe.yaml'
+
+      - name: Build and install kernel (if source changed)
+        if: steps.filter.outputs.kernel_src == 'true'
+        run: pixi run -e kernel install
+
+      - name: Install & Build JupyterLab extension (if source changed)
+        if: steps.filter.outputs.extension_src == 'true'
         run: |
-          opam install dune js_of_ocaml lwt graphics js_of_ocaml-lwt js_of_ocaml-ppx js_of_ocaml-toplevel base
-          opam exec -- dune build --root src/ocaml/
+          pixi run -e default extension-setup
+          pixi run -e default extension-build
 
-      - name: Install CMake
-        uses: ssrobins/install-cmake@v1
-        
-      - name: Setup Pixi and Install Dependencies
-        uses: prefix-dev/setup-pixi@v0.9.1 
+      - name: Create Tag on Version Bump (if recipe changed)
+        if: steps.filter.outputs.recipe == 'true'
+        # This step uses a dedicated action to ensure `yq` is available
+        uses: mikefarah/yq@v4
         with:
-          cache: false
-      
-      - name: Configure WASM Environment
-        run: pixi run -e kernels configure_wasm
+          cmd: |
+            VERSION=$(yq e '.context.version' 'recipe/recipe.yaml')
+            TAG="v${VERSION}"
+            echo "Version from recipe is ${VERSION}"
+            
+            if git rev-parse "${TAG}" >/dev/null 2>&1; then
+              echo "Tag ${TAG} already exists. No new tag will be created."
+            else
+              echo "Tag ${TAG} does not exist. Creating and pushing new tag."
+              git config --global user.name "github-actions[bot]"
+              git config --global user.email "github-actions[bot]@users.noreply.github.com"
+              git tag "${TAG}" -m "Release version ${VERSION}"
+              git push origin "${TAG}"
+            fi
 
-      - name: Configure OCaml Kernel for WebAssembly
-        run: pixi run -e kernels configure_kernel
+  #============================================================================
+  # JOB 2: Build, package, and create a release when a new tag is pushed
+  #============================================================================
+  release_and_deploy:
+    name: Create Release and Deploy Pages
+    # This job ONLY runs when a tag is pushed.
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Build OCaml Kernel
-        run: pixi run -e kernels build_kernel
+      - name: Setup Pixi environment
+        uses: prefix-dev/setup-pixi@v0.9.1
+        with:
+          cache: true
 
-      - name: Install OCaml Kernel
-        run: pixi run -e kernels install_kernel
+      - name: Build and install the xeus-ocaml kernel
+        run: pixi run -e kernel install
 
-      - name: Build JupyterLite Application
-        run: pixi run -e default build_jupyter
+      - name: Build the JupyterLite application
+        run: pixi run -e default build
 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload JupyterLite artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v4
         with:
           path: './_output'
 
       - name: Build conda package
+        id: build-conda
         uses: prefix-dev/rattler-build-action@v0.2.34
         with:
-          build-args: -c https://repo.prefix.dev/emscripten-forge-dev -c conda-forge --target-platform emscripten-wasm32
           recipe-path: recipe/recipe.yaml
+          build-args: >-
+            -c https://repo.prefix.dev/emscripten-forge-dev 
+            -c conda-forge 
+            --target-platform emscripten-wasm32
 
-      - name: Upload conda package
-        run: |
-          for pkg in $(find output -type f \( -name "*.conda" -o -name "*.tar.bz2" \) ); do
-            echo "Uploading ${pkg}"
-            rattler-build upload prefix -c emscripten "${pkg}"
-          done
-
-  deploy:
-    needs: build
+      - name: Create GitHub Release and Upload Conda Package
+        uses: softprops/action-gh-release@v2
+        with:
+          # This action automatically uses the tag that triggered the workflow
+          # and uploads the built conda package as an asset.
+          files: ${{ steps.build-conda.outputs.pkg-path }}
+          
+  #============================================================================
+  # JOB 3: Deploy the JupyterLite site to GitHub Pages
+  #============================================================================
+  deploy_pages:
+    name: Deploy to GitHub Pages
+    # This job only runs when a tag is pushed and after the release job is complete.
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: release_and_deploy
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy JupyterLite to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

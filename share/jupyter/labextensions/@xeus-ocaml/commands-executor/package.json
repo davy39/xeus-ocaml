@@ -1,0 +1,50 @@
+{
+  "name": "jupyterlab-commands-executor",
+  "version": "0.1.0",
+  "description": "A JupyterLab extension to execute UI commands from kernel comm messages.",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/davy39/jupyterlab-commands-executor",
+  "bugs": {
+    "url": "https://github.com/davy39/jupyterlab-commands-executor/issues"
+  },
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Davy Cottet",
+    "email": "davy@ik.me"
+  },
+  "files": [
+    "lib/**/*.{d.ts,js,js.map}"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davy39/jupyterlab-commands-executor.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:prod": "npm run clean && npm run build",
+    "clean": "rimraf lib tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "~4.4.0",
+    "@jupyterlab/notebook": "~4.4.0"
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "~4.4.0",
+    "rimraf": "^5.0.0",
+    "typescript": "~5.3.0"
+  },
+  "jupyterlab": {
+    "extension": true,
+    "outputDir": "../share/jupyter/labextensions/@xeus-ocaml/commands-executor",
+    "_build": {
+      "load": "static/remoteEntry.fd5479b59738dda3d4a1.js",
+      "extension": "./extension"
+    }
+  }
+}

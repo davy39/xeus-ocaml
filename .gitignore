@@ -50,3 +50,7 @@ _output/
 .jupyterlite.doit.db
 
 .pixi/
+_build/
+.vscode/
+*.yarn/
+*node_modules/

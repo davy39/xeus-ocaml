@@ -1,5 +1,5 @@
 context:
-  version: 0.0.4
+  version: 0.0.5
 
 package:
   name: xeus-ocaml
@@ -27,7 +27,6 @@ tests:
   - test -f $PREFIX/bin/xocaml.js
 about:
   license: GPL-3.0-or-later
-  license_family: GPL3
   license_file: LICENSE
   summary: xeus-javascript
   homepage: https://github.com/davy39/xeus-ocaml

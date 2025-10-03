@@ -1,4 +1,7 @@
-# This section defines the project's general metadata and configuration.
+# pixi.toml: Project configuration for the xeus-ocaml Jupyter kernel.
+# This file defines dependencies, build tasks, and environments for both
+# native development and WebAssembly compilation.
+
 [project]
 name = "xeus-ocaml"
 channels = [
@@ -6,75 +9,54 @@ channels = [
     "https://repo.prefix.dev/emscripten-forge-dev" # Channel for Emscripten-specific packages
 ]
 platforms = [
-    "linux-64",         # Linux 64-bit platform
+    "linux-64",
     "emscripten-wasm32"
 ]
 
-
-
-[feature.build]
-platforms = ["linux-64"] 
-
 ###############################################################################
-# Default Feature: Environment for installing emsdk and JupyterLite
-# This feature is primarily for Linux-64 to set up the development environment.
+# WASM Toolchain Feature
+# Sets up the Emscripten SDK on the linux-64 build host.
 ###############################################################################
+[feature.wasm]
+platforms = ["linux-64"]
 
-[feature.build.dependencies]
-# emsdk: Emscripten SDK, required for WebAssembly compilation.
+[feature.wasm.dependencies]
+# emsdk: The Emscripten SDK, required for compiling C++ to WebAssembly.
 emsdk = ">=3.1.46"
-# jupyterlab-language-pack-fr-FR: French language pack for JupyterLab.
-jupyterlab-language-pack-fr-FR = "*"
-# jupyterlite-xeus: JupyterLite with xeus kernel support.
-jupyterlite-xeus = "*"
-# jupyter_server: Jupyter server components.
-jupyter_server = "*"
-# ipywidgets: Interactive widgets for Jupyter notebooks.
-ipywidgets = "*"
-# jupyterlab: The JupyterLab IDE.
-jupyterlab = "*"
 
-[feature.build.tasks]
-# configure_wasm: Updates and installs a specific version of emsdk, then activates it.
-configure_wasm = { cmd = "emsdk update && emsdk install 3.1.73 && emsdk activate 3.1.73", depends-on = [] }
-
-# setup_ocaml: Builds the xeus-ocaml kernel by running a task in the 'kernels' environment.
-install_kernel = { cmd = "pixi run -e kernels install_kernel" }
-
-# jupyter_build: Builds the JupyterLite application, specifying the kernel prefix.
-build_jupyter = { cmd = "jupyter lite build --XeusAddon.prefix=.pixi/envs/kernels", depends-on = ["install_kernel"] }
-
-# jupyter_serve: Serves the built JupyterLite application using a Python HTTP server.
-serve_jupyter = { cmd = "python -m http.server 8000 --directory _output", depends-on = ["build_jupyter"] }
-
+[feature.wasm.tasks]
+# setup: Installs and activates the specific Emscripten SDK version required for the build.
+setup = "emsdk update && emsdk install 3.1.73 && emsdk activate 3.1.73"
+# get-worker: Downloads the pre-compiled OCaml Web Worker JavaScript file.
+get-worker = "curl -L -o $PIXI_PROJECT_ROOT/src/x-ocaml.worker+effects.js https://cdn.jsdelivr.net/gh/art-w/x-ocaml.js@6/x-ocaml.worker+effects.js"
 
 ###############################################################################
-# Kernels Feature: Environment for WASM runtime dependencies and kernel building
-# This feature is active for the emscripten-wasm32 platform.
+# Kernel Feature
+# Defines dependencies and build tasks for the emscripten-wasm32 target.
 ###############################################################################
+[feature.kernel]
+platforms = ["emscripten-wasm32"]
 
-[feature.kernels]
-platforms = ["emscripten-wasm32"] # This feature is active only on Emscripten WebAssembly.
-
-[feature.kernels.dependencies]
+[feature.kernel.dependencies]
 # xeus: Core C++ backend for Jupyter kernels.
 xeus = "*"
 # xeus-lite: Lightweight xeus components for JupyterLite.
 xeus-lite = "*"
-xeus-javascript = "*"
 # nlohmann_json: JSON library for C++.
-nlohmann_json ="*"
+nlohmann_json = "*"
 
-[feature.kernels.tasks]
-# setup_wasm: Configures the WebAssembly environment by running 'configure_wasm' from the default feature.
-configure_wasm = { cmd = "pixi run -e default configure_wasm", depends-on = [] }
+[feature.kernel.tasks]
+# setup: Ensures the wasm toolchain is set up before configuring the kernel.
+setup = { cmd = "pixi run -e wasm setup" }
 
-# configure_kernel: Configures the xeus-ocaml kernel for WebAssembly compilation.
-# This involves sourcing emsdk environment, setting various paths, and running emcmake.
-configure_kernel = { cmd = """
-bash -c 'source ".pixi/envs/default/lib/python3.13/site-packages/emsdk/emsdk_env.sh" && \\
-export EMPACK_PREFIX=../.pixi/envs/default && \\
-export PREFIX=../.pixi/envs/kernels && \\
+# configure: Runs emcmake to generate the build system for the WebAssembly target.
+# It sets the necessary environment variables and paths for the cross-compilation.
+configure = { cmd = """
+bash -c '
+rm -rf build && \\
+source ".pixi/envs/wasm/lib/python3.13/site-packages/emsdk/emsdk_env.sh" && \\
+export EMPACK_PREFIX=../.pixi/envs/wasm && \\
+export PREFIX=../.pixi/envs/kernel && \\
 export CMAKE_PREFIX_PATH=$PREFIX && \\
 export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX && \\
 mkdir -p build && cd build && \\
@@ -84,15 +66,59 @@ emcmake cmake \\
 -DCMAKE_INSTALL_PREFIX=$PREFIX \\
 -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON \\
 ..'
-""", depends-on = ["configure_wasm"] }
+""", depends-on = ["setup"] }
 
-# build_kernel: Builds the xeus-ocaml kernel using make.
-build_kernel = { cmd = "make -C build -j", depends-on = ["configure_kernel"] }
+# build: Compiles the C++ kernel source code into a WASM binary using make.
+build = { cmd = "make -C build -j", depends-on = ["configure"] }
 
-# install: Installs the built kernel into the environment's prefix.
-install_kernel = { cmd = "make -C build install", depends-on = ["build_kernel"] }
+# install: Installs the compiled kernel artifacts into the environment's prefix.
+install = { cmd = "make -C build install", depends-on = ["build"] }
 
-# This section defines the different environments available and their associated features.
+###############################################################################
+# Jupyter Feature
+# Defines the local development environment for building the JupyterLab
+# extension and the JupyterLite site.
+###############################################################################
+[feature.jupyter]
+platforms = ["linux-64"]
+
+[feature.jupyter.dependencies]
+jupyterlab = "==4.4.9"
+jupyterlite-xeus = "*"
+jupyter_server = "*"
+ipywidgets = "*"
+nodejs = "20.*"
+copier = "9.*"
+jinja2-time = "*"
+pip = "*"
+jupyterlite-pyodide-kernel = "*"
+# jupyterlab-language-pack-fr-FR: Optional French language pack.
+jupyterlab-language-pack-fr-FR = "*"
+
+[feature.jupyter.tasks]
+# extension-setup: Installs Node.js dependencies for the JupyterLab extension.
+extension-setup = { cmd = "truncate -s 0 yarn.lock && rm -rf node_modules && jlpm install", cwd = "extension" }
+
+# extension-build: Builds the production version of the JupyterLab extension.
+extension-build = { cmd = "jlpm build:prod && jupyter labextension build .", cwd = "extension" }
+
+# setup: Ensures the WASM kernel is installed before building the JupyterLite site.
+setup = { cmd = "pixi run -e kernel install" }
+
+# build: Builds the static JupyterLite site, bundling the WASM kernel from the kernel environment.
+build = { cmd = "rm -fr _output && rm -f .jupyterlite.doit.db && jupyter lite build --XeusAddon.prefix=.pixi/envs/kernel", depends-on = ["setup"] }
+
+# serve: Serves the built JupyterLite site locally for testing.
+serve = { cmd = "python -m http.server 8000 --directory _output", depends-on = ["build"] }
+
+###############################################################################
+# Environments
+# Maps the abstract features above to concrete, named environments.
+###############################################################################
 [environments]
-kernels = { features = ["kernels"] } # The kernels environment uses the 'kernels' feature.
-default = { features = ["build"] } # The default environment uses the 'build' feature.
+# The 'wasm' environment provides the Emscripten toolchain.
+wasm = { features = ["wasm"] }
+# The 'kernel' environment contains the WASM-targeted dependencies and build tasks.
+kernel = { features = ["kernel"] }
+# The 'default' environment provides the Jupyter frontend and development tools.
+default = { features = ["jupyter"] }

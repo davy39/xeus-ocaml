@@ -286,7 +286,9 @@ target_link_options(xocaml
     PUBLIC "SHELL: -s MAIN_MODULE=1"
     PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
     PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
-            "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/ocaml/_build/default/kernel.bc.js"
+    # "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/ocaml/xocaml.js"
+    PUBLIC "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/pre.js"
+
     PUBLIC "SHELL:--post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"
 )
 
@@ -319,10 +321,10 @@ endif()
 
 if (XEUS_OCAML_BUILD_EXECUTABLE OR EMSCRIPTEN)
     # Configuration and data directories for jupyter and xeus-ocaml
-    set(XJUPYTER_DATA_DIR "share/jupyter"    CACHE STRING "Jupyter data directory")
+    set(XJUPYTER_DATA_DIR "share"    CACHE STRING "Jupyter data directory")
 
     # Install xocaml Jupyter kernelspec
-    set(KERNELSPEC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels)
+    set(KERNELSPEC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter)
     install(DIRECTORY ${KERNELSPEC_DIR}
             DESTINATION ${XJUPYTER_DATA_DIR}
             PATTERN "*.in" EXCLUDE)
@@ -366,6 +368,10 @@ endif ()
 if(EMSCRIPTEN)
     install(TARGETS xocaml
             ARCHIVE DESTINATION ${XEUS_OCAML_CMAKECONFIG_INSTALL_DIR})
+
+    install(FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/x-ocaml.worker+effects.js"
+            DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
     install(FILES
             "$<TARGET_FILE_DIR:xocaml>/xocaml.js"

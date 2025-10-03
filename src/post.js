@@ -9,3 +9,4 @@ Module.FS = FS;
 if (!('wasmTable' in Module)) {
     Module['wasmTable'] = wasmTable
 }
+
