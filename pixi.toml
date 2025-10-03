@@ -91,7 +91,6 @@ nodejs = "20.*"
 copier = "9.*"
 jinja2-time = "*"
 pip = "*"
-jupyterlite-pyodide-kernel = "*"
 # jupyterlab-language-pack-fr-FR: Optional French language pack.
 jupyterlab-language-pack-fr-FR = "*"
 

@@ -33,9 +33,6 @@ jobs:
         with:
           cache: true
 
-      - name: Build and install the xeus-ocaml kernel
-        run: pixi run -e kernel install
-
       - name: Build the JupyterLite application
         run: pixi run -e default build
 
