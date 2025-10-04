@@ -113,6 +113,11 @@ build-jupyterlite = { cmd = "rm -fr _output && rm -f .jupyterlite.doit.db && jup
 # This provides a quick way to test the WASM kernel in a live environment.
 serve-jupyterlite = { cmd = "rm -fr _output && rm -f .jupyterlite.doit.db && jupyter lite serve --XeusAddon.prefix=.pixi/envs/kernel" }
 
+build-all = """
+pixi run build-extension && \
+pixi run build-kernel && \
+pixi run build-jupyterlite
+""" 
 ###############################################################################
 # Environments
 # Environments are concrete instances that combine one or more features.
