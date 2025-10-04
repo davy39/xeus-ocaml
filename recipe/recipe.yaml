@@ -1,5 +1,5 @@
 context:
-  version: 0.0.5
+  version: 0.1.0
 
 package:
   name: xeus-ocaml
@@ -28,7 +28,7 @@ tests:
 about:
   license: GPL-3.0-or-later
   license_file: LICENSE
-  summary: xeus-javascript
+  summary: xeus-ocaml
   homepage: https://github.com/davy39/xeus-ocaml
 extra:
   recipe-maintainers:

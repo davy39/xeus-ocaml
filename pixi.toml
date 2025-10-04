@@ -1,7 +1,6 @@
 # pixi.toml: Project configuration for the xeus-ocaml Jupyter kernel.
 # This file defines dependencies, build tasks, and environments for both
 # native development and WebAssembly compilation.
-
 [project]
 # The name of the project.
 name = "xeus-ocaml"
@@ -10,7 +9,6 @@ name = "xeus-ocaml"
 channels = [
     "conda-forge",
     "https://repo.prefix.dev/emscripten-forge-dev", # Channel for Emscripten (WASM) specific packages
-    "./output"                                      # Local channel for build artifacts
 ]
 # Target platforms for which this project can be built.
 platforms = [
@@ -32,15 +30,8 @@ platforms = [
 [feature.kernel]
 platforms = ["emscripten-wasm32"]
 
-[feature.kernel.dependencies]
-# The xeus-ocaml package compiled for WebAssembly.
-xeus-ocaml = "*"
-# Note: The original dependencies below were commented out. They are often
-# implicitly pulled in by xeus-ocaml but can be specified if needed.
-# xeus = "*"          # Core C++ backend for Jupyter kernels.
-# xeus-lite = "*"     # Lightweight xeus components for JupyterLite.
-# nlohmann_json = "*" # JSON library for C++.
-
+# [feature.kernel.dependencies]
+# xeus-ocaml = "*"
 #==============================================================================
 # [feature.extension]: JupyterLab Extension
 # Defines the environment and tasks for developing the JupyterLab extension.
@@ -102,8 +93,9 @@ upload-kernel = """
 rattler-build upload prefix --api-key=$PREFIX_API_KEY -c xeus-ocaml output/emscripten-wasm32/xeus-ocaml*
 """
 # Installs the locally built kernel into the 'kernel' environment.
-install-kernel = { cmd = "pixi install -e kernel" }
-
+install-kernel = """
+pixi run -e kernel micromamba install -y  $PIXI_PROJECT_ROOT/output/emscripten-wasm32/xeus-ocaml*
+"""
 # Builds the static JupyterLite site.
 # It cleans previous build artifacts and points to the WASM kernel
 # located in the .pixi/envs/kernel directory.
@@ -116,6 +108,7 @@ serve-jupyterlite = { cmd = "rm -fr _output && rm -f .jupyterlite.doit.db && jup
 build-all = """
 pixi run build-extension && \
 pixi run build-kernel && \
+pixi run install-kernel && \
 pixi run build-jupyterlite
 """ 
 ###############################################################################

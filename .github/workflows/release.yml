@@ -30,14 +30,13 @@ jobs:
         with:
           cache: true
 
-      - name: Build the WASM Kernel
-        run: pixi run build-kernel
-      
-      - name: Install WASM Kernel
-        run: pixi run install-kernel
+      - name: Build all
+        run: pixi run build-all
 
-      - name: Build the JupyterLite application
-        run: pixi run build-jupyterlite
+      - name: Upload Conda Package to prefix.dev Channel
+        env:
+          PREFIX_API_KEY: ${{ secrets.PREFIX_API_KEY }}
+        run: pixi run upload-kernel  
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
@@ -46,11 +45,6 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: './_output'
-
-      - name: Upload Conda Package to prefix.dev Channel
-        env:
-          PREFIX_API_KEY: ${{ secrets.PREFIX_API_KEY }}
-        run: pixi run upload-kernel
 
       - name: Create GitHub Release and Upload Conda Package
         uses: softprops/action-gh-release@v2

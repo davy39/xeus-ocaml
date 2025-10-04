@@ -4,7 +4,6 @@ environments:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
     - url: https://repo.prefix.dev/emscripten-forge-dev/
-    - url: file:///home/davy/Bureau/kernel_ocaml/xeus-ocaml/output/
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -176,7 +175,6 @@ environments:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
     - url: https://repo.prefix.dev/emscripten-forge-dev/
-    - url: file:///home/davy/Bureau/kernel_ocaml/xeus-ocaml/output/
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -358,13 +356,7 @@ environments:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
     - url: https://repo.prefix.dev/emscripten-forge-dev/
-    - url: file:///home/davy/Bureau/kernel_ocaml/xeus-ocaml/output/
-    packages:
-      emscripten-wasm32:
-      - conda: https://repo.prefix.dev/emscripten-forge-dev/noarch/emscripten-abi-3.1.73-h267e887_12.tar.bz2
-      - conda: https://conda.anaconda.org/conda-forge/noarch/nlohmann_json-abi-3.12.0-h0f90c79_1.conda
-      - conda: https://repo.prefix.dev/emscripten-forge-dev/emscripten-wasm32/xeus-5.2.4-h2072262_1.tar.bz2
-      - conda: /home/davy/Bureau/kernel_ocaml/xeus-ocaml/output/emscripten-wasm32/xeus-ocaml-0.0.6-h7223423_0.conda
+    packages: {}
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
   sha256: fe51de6107f9edc7aa4f786a70f4a883943bc9d39b3bb7307c04c41410990726
@@ -852,11 +844,6 @@ packages:
   license_family: MIT
   size: 20454
   timestamp: 1751299733063
-- conda: https://repo.prefix.dev/emscripten-forge-dev/noarch/emscripten-abi-3.1.73-h267e887_12.tar.bz2
-  sha256: 50477ceddc687fdda3ab437fc95237b7f1c489e28470adc2ea453105b497eed2
-  license: MIT
-  size: 11548
-  timestamp: 1756382119817
 - conda: https://conda.anaconda.org/conda-forge/noarch/eval-type-backport-0.2.2-pyhd8ed1ab_0.conda
   sha256: 05ffdcb83903c159bfbb78a07fbcce6fd6dda41df9c55ed75e0eb1db5528048f
   md5: 879479fda1dddb002fdc4885cea33740
@@ -1796,13 +1783,6 @@ packages:
   license_family: BSD
   size: 1564462
   timestamp: 1749078300258
-- conda: https://conda.anaconda.org/conda-forge/noarch/nlohmann_json-abi-3.12.0-h0f90c79_1.conda
-  sha256: 2a909594ca78843258e4bda36e43d165cda844743329838a29402823c8f20dec
-  md5: 59659d0213082bc13be8500bab80c002
-  license: MIT
-  license_family: MIT
-  size: 4335
-  timestamp: 1758194464430
 - conda: https://conda.anaconda.org/conda-forge/linux-64/nodejs-20.19.5-hf7ee748_0.conda
   sha256: f4a33f44d54552ae976c7cec0b915a625b4a4c910faea4338af750539ae69db6
   md5: 2cbd9a01ac939d85f137ee44c64fb705
@@ -2743,26 +2723,6 @@ packages:
   license_family: BSD
   size: 889285
   timestamp: 1744291155057
-- conda: https://repo.prefix.dev/emscripten-forge-dev/emscripten-wasm32/xeus-5.2.4-h2072262_1.tar.bz2
-  sha256: 8a335742de95fe922aacd76b8a6f68c2ef9c9cef1fe4115da6029b86267b786f
-  depends:
-  - emscripten-abi >=3.1.73,<3.1.74.0a0
-  - nlohmann_json-abi ==3.12.0
-  license: BSD-3-Clause
-  license_family: BSD-3
-  size: 378897
-  timestamp: 1758815077384
-- conda: /home/davy/Bureau/kernel_ocaml/xeus-ocaml/output/emscripten-wasm32/xeus-ocaml-0.0.6-h7223423_0.conda
-  subdir: emscripten-wasm32
-  sha256: 2357f832e59fc7bee034d97f39dea3703214491efd7f5044e2cccfb754c43c16
-  md5: 3f0167c9d218a747708938eded5089a0
-  depends:
-  - emscripten-abi >=3.1.73,<3.1.74.0a0
-  - xeus >=5.2.4,<5.3.0a0
-  channel: file:///home/davy/Bureau/kernel_ocaml/xeus-ocaml/output
-  license: GPL-3.0-or-later
-  size: 2311102
-  timestamp: 1759565627861
 - conda: https://conda.anaconda.org/conda-forge/linux-64/yaml-0.2.5-h280c20c_3.conda
   sha256: 6d9ea2f731e284e9316d95fa61869fe7bbba33df7929f82693c121022810f4ad
   md5: a77f85f77be52ff59391544bfe73390a
