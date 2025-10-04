@@ -30,7 +30,9 @@ platforms = [
 [feature.kernel]
 platforms = ["emscripten-wasm32"]
 
-# [feature.kernel.dependencies]
+[feature.kernel.dependencies]
+xeus = "*"
+
 # xeus-ocaml = "*"
 #==============================================================================
 # [feature.extension]: JupyterLab Extension

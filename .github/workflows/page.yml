@@ -1,0 +1,55 @@
+name: Build and deploy pages
+
+on:
+  # This workflow ONLY runs on demand
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  Build:
+    name: Deploy Pages
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pixi environment
+        uses: prefix-dev/setup-pixi@v0.9.1
+        with:
+          cache: true
+
+      - name: Build all
+        run: pixi run build-all
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload JupyterLite artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './_output'
+
+          
+  Deploy:
+    name: Deploy to GitHub Pages
+    needs: Build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy JupyterLite to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
