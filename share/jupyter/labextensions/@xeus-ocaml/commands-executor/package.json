@@ -43,7 +43,7 @@
     "extension": true,
     "outputDir": "../share/jupyter/labextensions/@xeus-ocaml/commands-executor",
     "_build": {
-      "load": "static/remoteEntry.9bb823579d8f2d15d19d.js",
+      "load": "static/remoteEntry.dbbdde33896c0db52586.js",
       "extension": "./extension"
     }
   }
