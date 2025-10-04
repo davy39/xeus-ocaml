@@ -76,6 +76,7 @@ namespace xeus_ocaml
 
     void interpreter::send_to_worker(const nl::json& message)
     {
+        std::clog << "[C++ -> OCaml] Sending message: " << message.dump() << std::endl;
         // This is a thin C++ wrapper around the JavaScript `worker.postMessage()` method.
         emscripten::val ocamlWorker = emscripten::val::module_property("ocamlWorker");
         ocamlWorker.call<void>("postMessage", emscripten::val(message.dump()));
@@ -83,6 +84,7 @@ namespace xeus_ocaml
 
     void interpreter::on_message_callback(const std::string& message)
     {
+        std::clog << "[OCaml -> C++] Received message: " << message << std::endl;
         // First, safely parse the incoming JSON string.
         nl::json response_json;
         try {
@@ -91,7 +93,6 @@ namespace xeus_ocaml
             std::cerr << "[C++] Failed to parse JSON from OCaml worker: " << e.what() << std::endl;
             return;
         }
-
         // Validate the basic structure of the response array.
         if (!response_json.is_array() || response_json.size() < 2) {
             std::cerr << "[C++] Invalid response format from OCaml worker." << std::endl;
@@ -108,7 +109,10 @@ namespace xeus_ocaml
             handle_execution_output(request_id, response_json[3]);
         } else if (response_type == "Top_response") {
             handle_final_response(request_id, "");
-        } else {
+        } else if (response_type == "Formatted_source") {
+        // We could format cell content ...
+        } 
+        else {
             std::string error_msg = "Received unhandled response type from OCaml worker: " + response_type;
             handle_final_response(request_id, error_msg);
         }
@@ -253,14 +257,6 @@ namespace xeus_ocaml
     {
         // Create a mutable copy of the input code to be processed.
         std::string processed_code = code;
-
-        // Use a loop to find and replace all occurrences of ";;" with a space.
-        size_t pos = 0;
-        while ((pos = processed_code.find(";;", pos)) != std::string::npos) {
-            processed_code.replace(pos, 2, " ");
-            // Move past the position of the replacement to continue searching.
-            pos += 1;
-        }
 
         // Store the callback and execution count to be used when the async response arrives.
         int request_id = ++m_request_id_counter;
