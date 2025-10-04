@@ -2478,11 +2478,11 @@ __metadata:
   linkType: hard
 
 "envinfo@npm:^7.7.3":
-  version: 7.15.0
-  resolution: "envinfo@npm:7.15.0"
+  version: 7.16.0
+  resolution: "envinfo@npm:7.16.0"
   bin:
     envinfo: dist/cli.js
-  checksum: 38595c11134ecb66a40289980d8ca82e89fdcd68849dd72560c1bbc3cfc55c867573b4150967707ff9ff2e5cad6f1d0cb6cc56c333a6eccdcd3533452141c0a8
+  checksum: 7f732ac35f1da1a964d32b86bfb1421bc2712a58fe86cba4421c5fb25aa42b458ba70bd799b550cd0e744ec92bbcf69bd176b09ca7616640f26766e96ceba0d8
   languageName: node
   linkType: hard
 
@@ -3482,9 +3482,9 @@ __metadata:
   linkType: hard
 
 "node-releases@npm:^2.0.21":
-  version: 2.0.21
-  resolution: "node-releases@npm:2.0.21"
-  checksum: 191f8245e18272971650eb45151c5891313bca27507a8f634085bd8c98a9cb9492686ef6182176866ceebff049646ef6cd5fb5ca46d5b5ca00ce2c69185d84c4
+  version: 2.0.23
+  resolution: "node-releases@npm:2.0.23"
+  checksum: dc3194ffdf04975f8525a5e175c03f5a95cecd7607b6b0e80d28aaa03900706d920722b5f2ae2e8e28e029e6ae75f0d0f7eae87e8ee2a363c704785e3118f13d
   languageName: node
   linkType: hard
 

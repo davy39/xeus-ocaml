@@ -25,16 +25,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install CMake
-        uses: ssrobins/install-cmake@v1
-  
       - name: Setup Pixi environment
         uses: prefix-dev/setup-pixi@v0.9.1
         with:
           cache: true
 
+      - name: Build the WASM Kernel
+        run: pixi run build-kernel
+      
+      - name: Install WASM Kernel
+        run: pixi run install-kernel
+
       - name: Build the JupyterLite application
-        run: pixi run -e default build
+        run: pixi run build-jupyterlite
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
@@ -44,29 +47,17 @@ jobs:
         with:
           path: './_output'
 
-      - name: Build conda package
-        id: build-conda
-        uses: prefix-dev/rattler-build-action@v0.2.34
-        with:
-          recipe-path: recipe/recipe.yaml
-          build-args: >-
-            -c https://repo.prefix.dev/emscripten-forge-dev 
-            -c conda-forge 
-            --target-platform emscripten-wasm32
-
       - name: Upload Conda Package to prefix.dev Channel
-        run: |
-          for pkg in $(find output -type f \( -name "*.conda" -o -name "*.tar.bz2" \) ); do
-            echo "Uploading ${pkg}"
-            rattler-build upload prefix -c emscripten "${pkg}"
-          done
+        env:
+          PREFIX_API_KEY: ${{ secrets.PREFIX_API_KEY }}
+        run: pixi run upload-kernel
 
       - name: Create GitHub Release and Upload Conda Package
         uses: softprops/action-gh-release@v2
         with:
               files: |
-                output/*.conda
-                output/*.tar.bz2
+                output/**/*.conda
+                output/**/*.tar.bz2
           
   deploy_pages:
     name: Deploy to GitHub Pages
