@@ -1,94 +1,107 @@
-# ![xeus-ocaml](docs/source/xeus-logo.svg)
+# ![xeus-ocaml logo](https://raw.githubusercontent.com/davy39/xeus-ocaml/refs/heads/main/share/jupyter/kernels/xocaml/logo-64x64.png)
 
-[![Build Status](https://github.com/davy39/xeus-ocaml/actions/workflows/main.yml/badge.svg)](https://github.com/davy39/xeus-ocaml/actions/workflows/main.yml)
+[![CI Workflow](https://github.com/davy39/xeus-ocaml/actions/workflows/ci.yml/badge.svg)](https://github.com/davy39/xeus-ocaml/actions/workflows/ci.yml)
+[![Release Workflow](https://github.com/davy39/xeus-ocaml/actions/workflows/release.yml/badge.svg)](https://github.com/davy39/xeus-ocaml/actions/workflows/release.yml)
+[![GitHub Pages](https://img.shields.io/badge/github--pages-deployed-success)](https://davy39.github.io/xeus-ocaml/)
 
-[![Documentation Status](http://readthedocs.org/projects/xeus-ocaml/badge/?version=latest)](https://xeus-ocamlreadthedocs.io/en/latest/?badge=latest)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/davy39/xeus-ocaml/main?urlpath=/lab/tree/notebooks/xeus-ocaml.ipynb)
+`xeus-ocaml` is a modern Jupyter kernel for the OCaml programming language, designed to run entirely in the web browser using WebAssembly. It is built upon the `xeus` C++ library, a native implementation of the Jupyter protocol.
 
-`xeus-ocaml` is a Jupyter kernel for ocaml based on the native implementation of the
-Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
+This kernel provides a lightweight, serverless OCaml environment within JupyterLite, offering features like code completion and inspection powered by OCaml's Merlin toolchain.
 
-## Installation
+## ✨ Features
 
-xeus-ocaml has not been packaged for the mamba (or conda) package manager.
+*   **Fully Browser-Based**: Runs entirely in the browser with no server-side setup required, thanks to WebAssembly.
+*   **Interactive OCaml Toplevel**: Execute OCaml code interactively in a Jupyter notebook.
+*   **Rich Language Features**: Provides code completion and inspection (tooltips) by communicating with an in-browser Merlin worker.
+*   **JupyterLite Integration**: Designed from the ground up for seamless integration with JupyterLite.
+*   **Frontend-Kernel Communication**: Includes a JupyterLab extension to execute frontend commands (e.g., triggering the completer) directly from the kernel.
 
-To ensure that the installation works, it is preferable to install `xeus-ocaml` in a
-fresh environment. It is also needed to use a
-[miniforge](https://github.com/conda-forge/miniforge#mambaforge) or
-[miniconda](https://conda.io/miniconda.html) installation because with the full
-[anaconda](https://www.anaconda.com/) you may have a conflict with the `zeromq` library
-which is already installed in the anaconda distribution.
+## 🚀 Live Demo
 
-The safest usage is to create an environment named `xeus-ocaml`
+You can try `xeus-ocaml` live in your browser by visiting the JupyterLite deployment on GitHub Pages:
 
-```bash
-mamba create -n  `xeus-ocaml`
-source activate  `xeus-ocaml`
-```
+[**https://davy39.github.io/xeus-ocaml/**](https://davy39.github.io/xeus-ocaml/)
 
-<!-- ### Installing from conda-forge
+## 🙏 Acknowledgements
 
-Then you can install in this environment `xeus-ocaml` and its dependencies
+This project stands on the shoulders of giants and would not be possible without the incredible work of the following projects:
 
-```bash
-mamba install`xeus-ocaml` notebook -c conda-forge
-``` -->
+*   **The `xeus` Project**: `xeus-ocaml` is built directly on top of the **[xeus](https://github.com/jupyter-xeus/xeus)** C++ library. The ability to compile this kernel to WebAssembly and run it entirely in the browser is made possible by **[xeus-lite](https://github.com/jupyter-xeus/xeus-lite)**, a project specifically designed for creating WASM-based Jupyter kernels. The `xeus` ecosystem is foundational to this kernel's existence.
 
-### Installing from source
+*   **The OCaml Web Worker**: Much credit is due to Arthur Wendling for his **[x-ocaml worker](https://github.com/art-w/x-ocaml)**, which provides the OCaml toplevel and Merlin integration compiled to JavaScript with **[js_of_ocaml](https://github.com/ocsigen/js_of_ocaml)**.
 
-Or you can install it from the sources, you will first need to install dependencies
+## 🛠️ Getting Started & Local Development
 
-```bash
-mamba install cmake cxx-compiler xeus-zmq nlohmann_json cppzmq xtl jupyterlab -c conda-forge
-```
+This project uses the `pixi` package manager to handle both the native (Linux) and WebAssembly environments.
 
-Then you can compile the sources (replace `$CONDA_PREFIX` with a custom installation
-prefix if need be)
+### Prerequisites
 
-```bash
-mkdir build && cd build
-cmake .. -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib
-make && make install
-```
+You need to have `pixi` installed. You can find installation instructions [here](https://pixi.sh/latest/installation/).
 
-<!-- ## Trying it online
+### Running Locally
 
-To try out xeus-ocaml interactively in your web browser, just click on the binder link:
-(Once Conda Package is Ready)
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/davy39/xeus-ocaml.git
+    cd xeus-ocaml
+    ```
 
-[![Binder](binder-logo.svg)](https://mybinder.org/v2/gh/davy39/xeus-ocaml/main?urlpath=/lab/tree/notebooks/xeus-ocaml.ipynb) -->
+2.  **Install all dependencies:**
+    This command will set up the necessary environments, including the WASM toolchain and Node.js dependencies for the extension.
+    ```bash
+    pixi install
+    ```
 
+3.  **Run the local JupyterLite server:**
+    This command will build the kernel and the JupyterLab extension, then launch a local JupyterLite instance with the `xeus-ocaml` kernel.
+    ```bash
+    pixi run build-all
+    pixi run serve-jupyterlite
+    ```
+    You can now access the JupyterLite interface in your web browser.
 
+## 🏗️ How It Works
 
-## Documentation
+The `xeus-ocaml` kernel has a unique architecture that combines C++, OCaml, and TypeScript, all compiled to run in the browser.
 
-To get started with using `xeus-ocaml`, check out the full documentation
+1.  **C++ Kernel Core (`xeus-lite`)**: The core of the kernel is written in C++ using the `xeus` framework. It is compiled to WebAssembly (`xocaml.wasm`) and runs in the main browser thread, handling Jupyter protocol messages.
+2.  **OCaml Web Worker**: The OCaml toplevel and the Merlin inspection/completion engine run in a separate Web Worker (`x-ocaml.worker+effects.js`). This prevents the UI from freezing during code execution or analysis.
+3.  **JupyterLab Extension**: A small companion JupyterLab extension (`/extension`) establishes a communication channel (`Comm`) that allows the kernel to send commands back to the JupyterLab frontend, for instance, to programmatically trigger the autocompleter UI.
 
-http://xeus-ocaml.readthedocs.io
+### The OCaml Web Worker
 
+A critical component of `xeus-ocaml` is the OCaml Web Worker, which handles all the language-specific heavy lifting. This worker runs the OCaml runtime, toplevel, and analysis tools in a separate browser thread.
 
-## Dependencies
+*   **Code Execution**: It uses the standard OCaml `toplevel/toploop` library to execute code entered into notebook cells.
+*   **Autocompletion and Typing**: For rich language features, it leverages a `js_of_ocaml` port of the Merlin inspection tool, available at **[voodoos/merlin-js](https://github.com/voodoos/merlin-js)**.
 
-`xeus-ocaml` depends on
+The C++ kernel communicates with this worker by sending and receiving **JSON messages** via the browser's `postMessage` API. The kernel sends requests for execution, completion, or inspection, and the worker sends back results, outputs (`stdout`/`stderr`), or Merlin analysis data. This decoupled architecture ensures a responsive user experience.
 
-- [xeus-zmq](https://github.com/jupyter-xeus/xeus-zmq)
-- [xtl](https://github.com/xtensor-stack/xtl)
-- [nlohmann_json](https://github.com/nlohmann/json)
-- [cppzmq](https://github.com/zeromq/cppzmq)
+## 🔧 Building from Source
 
+The project is configured with `pixi` tasks to simplify the build process.
 
-## Packaging
+*   **Build everything (Extension, Kernel, and JupyterLite site):**
+    ```bash
+    pixi run build-all
+    ```
+    This command runs the following steps in sequence:
+    1.  `build-extension`: Compiles the TypeScript JupyterLab extension.
+    2.  `build-kernel`: Compiles the C++ kernel to WebAssembly using `rattler-build` and the recipe in `/recipe`.
+    3.  `install-kernel`: Installs the compiled WASM artifacts into a local `pixi` environment.
+    4.  `build-jupyterlite`: Bundles the kernel and extension into a static JupyterLite site in the `_output` directory.
 
-```bash
-rattler-build build --recipe recipe/recipe.yaml -c  https://repo.prefix.dev/emscripten-forge-dev  -c conda-forge --target-platform emscripten-wasm32
-```
+## 📦 Continuous Integration and Deployment
 
-## Contributing
+The project uses GitHub Actions for CI/CD:
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) to know how to contribute and set up a
-development environment.
+*   **`ci.yml`**: On every push to `main`, this workflow builds and tests the kernel and extension. If the version in `recipe/recipe.yaml` is updated, it automatically creates and pushes a new version tag (e.g., `v0.1.0`).
+*   **`release.yml`**: When a new version tag is pushed, this workflow:
+    1.  Builds the Conda package for the kernel.
+    2.  Uploads the package to the `xeus-ocaml` channel on `prefix.dev`.
+    3.  Creates a new GitHub Release with the package as an asset.
+    4.  Builds and deploys the JupyterLite site to GitHub Pages.
 
-## License
+## 📜 License
 
-This software is licensed under the `GNU General Public License v3`. See the [LICENSE](LICENSE)
-file for details.
+This software is licensed under the **GNU General Public License v3**. See the [LICENSE](LICENSE) file for details.
