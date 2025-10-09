@@ -16,7 +16,7 @@ module.exports = {
   // The default is ["/node_modules/"], so we add our path to it.
   transformIgnorePatterns: [
     '/node_modules/',
-    '../xocaml.js'
+    '../_build/default/src/xocaml/xocaml.bc.js'
 
   ],
 

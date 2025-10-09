@@ -8,7 +8,7 @@ describe('Eval Command (Async)', () => {
   // beforeAll is now async and sends the setup payload
   beforeAll(async () => {
     console.log('--- beforeAll: Running async Setup command ---');
-    const setupPayload = { dsc_url: "./src/xmerlin/dynamic/stdlib" };
+    const setupPayload = { dsc_url: "./_build/default/src/xmerlin/dynamic/stdlib" };
     const response = await callToplevelAsync('Setup', setupPayload);
 
     expect(response.class).toBe('return');

@@ -46,11 +46,11 @@ let process_toplevel_action_async (json_str_js : Js.js_string Js.t) (callback : 
         let action_res = Protocol.action_of_yojson (Yojson.Safe.from_string json_str) in
         match action_res with
         | Ok (Protocol.Eval { source }) ->
-          let outputs = Xtoplevel.eval source in
+          let* outputs = Xtoplevel.eval source in
           let response_value = `List (List.map ~f:Protocol.output_to_yojson outputs) in
           Lwt.return @@ create_success_response response_value
         | Ok (Protocol.Setup setup_config) ->
-          Xtoplevel.setup ();
+          Xtoplevel.setup ~url:setup_config.dsc_url;
           let* () = Xmerlin.setup ~url:setup_config.dsc_url in
           Lwt.return @@ create_success_response (`String "Setup complete")
         | Ok _ ->

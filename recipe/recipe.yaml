@@ -1,12 +1,24 @@
 context:
-  version: 0.2.1
+  version: 0.2.2 # Set in include/xeus_ocaml_config.hpp
 
 package:
   name: xeus-ocaml
   version: ${{ version }}
 
 source:
-  path: ../
+- path: ../
+  # # use_gitignore: false
+  # filter:
+  #   include:
+  #     - ../*
+  #   exclude:
+  #     - ../_output/
+  #     - ../.opam/
+  #     - ../.pixi/
+  #     - ../vscode/
+  #     - ../output/
+- path: ../ocaml/_build/default/src/
+  target_directory: ocaml-build
 
 build:
   number: 0

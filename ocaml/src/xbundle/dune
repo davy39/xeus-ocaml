@@ -1,0 +1,15 @@
+(executable
+ (public_name xbundle)
+ (name xbundle)
+ (libraries bos cmdliner)
+ (package xocaml))
+
+(rule
+ (target ocamlgraph.js) ; so cmake can list it for xeus shared
+ (deps xbundle.exe)
+ (action
+   (run  %{exe:xbundle.exe} --output %{target} ocamlgraph )))
+
+(alias
+ (name bundle)
+ (deps ocamlgraph.js))

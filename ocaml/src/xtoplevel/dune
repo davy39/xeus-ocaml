@@ -1,11 +1,12 @@
 (library
  (name xtoplevel)
  (public_name xocaml.xtoplevel)
- (preprocess (pps js_of_ocaml-ppx))
+ (preprocess (pps js_of_ocaml-ppx lwt_ppx))
  (libraries
   xocaml.protocol
   xocaml.lib
   js_of_ocaml
   js_of_ocaml-toplevel
+  js_of_ocaml-lwt
   ))
 

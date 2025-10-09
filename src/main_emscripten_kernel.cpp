@@ -12,7 +12,7 @@
 
 #include <emscripten/bind.h>
 
-#include "xeus-ocaml/xinterpreter.hpp"
+#include "xinterpreter.hpp"
 #include "xeus/xembind.hpp"
 
 

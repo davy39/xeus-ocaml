@@ -46,6 +46,7 @@ opam = "*"        # The OCaml Package Manager.
 xorg-libx11 = "*" # System dependencies required by some OCaml libraries.
 xorg-xproto = "*" # System dependencies required by some OCaml libraries.
 
+
 [feature.ocaml.tasks]
 # Initializes the OPAM environment and installs locked dependencies.
 setup = { cmd = """
@@ -59,10 +60,10 @@ opam exec -- dune pkg lock
 clean = { cmd = "opam exec -- dune clean --root $OCAML_DIR", cwd = "ocaml" }
 
 # Builds the OCaml project (specifically the JavaScript target).
-build = { cmd = "opam exec -- dune build @js --root $OCAML_DIR --verbose", cwd = "ocaml" }
+build = { cmd = "opam exec -- dune build --root $OCAML_DIR", cwd = "ocaml" }
 
 # Creates a release build of the OCaml project.
-release = { cmd = "opam exec -- dune build @js --profile release --root $OCAML_DIR", cwd = "ocaml" }
+release = { cmd = "opam exec -- dune build --profile release --root $OCAML_DIR", cwd = "ocaml" }
 
 # Starts a simple Python web server to test the 'playground' example.
 playground = { cmd = "python3 -m http.server -d $OCAML_DIR/playground " }
@@ -150,6 +151,8 @@ serve-jupyterlite = { cmd = "rm -fr _output && rm -f .jupyterlite.doit.db && jup
 
 # A convenience task to run the entire build process in sequence.
 build-all = """
+pixi run sync-version && \
+pixi run -e ocaml release &&\
 pixi run build-kernel && \
 pixi run install-kernel && \
 pixi run build-jupyterlite
@@ -157,12 +160,29 @@ pixi run build-jupyterlite
 
 # A convenience task to run the entire build process and then serve the result.
 build-all-serve = """
+pixi run sync-version && \
 pixi run -e ocaml build &&\
 pixi run build-kernel && \
 pixi run install-kernel && \
 pixi run serve-jupyterlite
 """
 
+
+#==============================================================================
+# [feature.dev-tools]: For developer utilities like the version sync script
+#==============================================================================
+[feature.dev-tools]
+platforms = ["linux-64"]
+
+[feature.dev-tools.dependencies]
+'ruamel.yaml' = "*" # For preserving YAML formatting
+
+[feature.dev-tools.tasks]
+# Syncs the version from the C++ header to recipe.yaml
+sync-version = "python scripts/sync_version.py"
+
+# Verifies that the versions are in sync (for CI)
+verify-version = "python scripts/sync_version.py --check"
 
 ###############################################################################
 ### [environments]: Environment Definitions
@@ -185,6 +205,8 @@ ocaml = { features = ["ocaml"] }
 
 # The 'test' environment is for running the JavaScript tests.
 test = { features = ["test"] }
+
+dev-tools = { features = ["dev-tools"] }
 
 
 ###############################################################################

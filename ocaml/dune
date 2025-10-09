@@ -1,9 +1,0 @@
-(rule
- (target xocaml.js)
- (deps   src/xocaml/xocaml.bc.js)
- (action (copy %{deps} %{target}))
- (mode promote))
-
-(alias
- (name js)
- (deps xocaml.js))

@@ -1,5 +1,4 @@
-
-# ![xeus-logo](https://raw.githubusercontent.com/jupyter-xeus/xeus/refs/heads/main/docs/source/xeus.svg) OCAML ![xeus-ocaml logo](https://raw.githubusercontent.com/davy39/xeus-ocaml/refs/heads/main/share/jupyter/kernels/xocaml/logo-64x64.png)
+# ![xeus-logo](https://raw.githubusercontent.com/jupyter-xeus/xeus/refs/heads/main/docs/source/xeus.svg) OCAML ![xeus-ocaml logo](https://raw.githubusercontent.com/davy39/xeus-ocaml/refs/heads/main/share/jupyter/kernels/xocaml/logo-svg.svg)
 
 [![CI and Auto-Tagging](https://github.com/davy39/xeus-ocaml/actions/workflows/ci.yml/badge.svg)](https://github.com/davy39/xeus-ocaml/actions/workflows/ci.yml)
 [![Release and Deploy](https://github.com/davy39/xeus-ocaml/actions/workflows/release.yml/badge.svg)](https://github.com/davy39/xeus-ocaml/actions/workflows/release.yml)
@@ -20,7 +19,25 @@ Experience `xeus-ocaml` firsthand in your browser by visiting the JupyterLite de
 *   **Fully Browser-Based**: Runs entirely in the browser with no server-side installation, powered by WebAssembly.
 *   **Interactive OCaml Toplevel**: Execute OCaml code interactively, with persistent state between cells.
 *   **Rich Language Intelligence**: Provides code completion and inspection (tooltips on hover/Shift+Tab) through an integrated Merlin engine.
+*   **Dynamic Library Loading**: Load pre-compiled OCaml libraries dynamically using the `#require` directive.
 *   **Rich Display Support**: Render HTML, Markdown, SVG, JSON, and even complex plots like Vega-Lite directly from your OCaml code.
+
+## 📦 Dynamic Libraries with `#require`
+
+You can dynamically load additional OCaml libraries that have been pre-compiled to JavaScript. Use the standard toplevel directive `#require` followed by the library name.
+
+```ocaml
+(* Load the ocamlgraph library *)
+#require "ocamlgraph";;
+
+(* Now you can use modules from the library *)
+open Graph
+let g = Imperative.Graph.create ()
+let v1 = Imperative.Graph.V.create 1
+let v2 = Imperative.Graph.V.create 2
+let () = Imperative.Graph.add_edge g v1 v2
+```
+This feature relies on the library being available as a `.js` file at a URL accessible to the kernel.
 
 ## 📊 Rich Display and Visualization
 
@@ -64,81 +81,9 @@ let vega_spec = {|
 output_vegalite vega_spec
 ```
 
-## 🏗️ Architecture
+## 🛠️ Contributing and Development
 
-`xeus-ocaml` utilizes a hybrid C++ and OCaml architecture, where both languages are compiled to run within a single browser execution context. This design avoids the overhead of web workers for communication, enabling fast and direct interaction between components.
-
-1.  **C++ Kernel Core (`xocaml.wasm`)**: The kernel's foundation is a C++ application built with `xeus-lite`. It is compiled to a WebAssembly module (`xocaml.wasm`) and is responsible for handling the Jupyter messaging protocol. It acts as the central controller, receiving requests from the Jupyter frontend and dispatching them to the OCaml backend.
-
-2.  **OCaml Backend (`xocaml.js`)**: The OCaml code, including the toplevel environment (`xtoplevel.ml`) and Merlin integration (`xmerlin.ml`), is compiled to a single JavaScript file (`xocaml.js`) using `js_of_ocaml`. This script exposes a clean API for executing code and performing code analysis.
-
-3.  **Direct Communication via Embind**: The C++ kernel and OCaml backend communicate directly within the browser's main thread.
-    *   The `xocaml.js` file is loaded before the WASM module, making its exported functions available globally.
-    *   The C++ code uses Emscripten's `emscripten::val` API to make direct calls to the JavaScript functions provided by the OCaml backend.
-    *   **Synchronous calls** (e.g., code completion) are handled with a simple function call and return.
-    *   **Asynchronous calls** (e.g., code execution) are managed by passing a C++ callback function to the OCaml/JS side. The OCaml code, using its `Lwt` library for concurrency, executes the task and invokes the C++ callback upon completion.
-
-4.  **Standard Library Management**: To balance startup performance and functionality, the kernel uses a hybrid approach for the OCaml standard library. A core set of modules is embedded directly into the `xocaml.js` bundle at compile time. Additional modules are fetched dynamically from the server on-demand when the kernel first initializes.
-
-## 🛠️ Local Development
-
-This project uses the `pixi` package and environment manager to streamline development for both OCaml and C++/WASM components.
-
-### Prerequisites
-
-*   Install `pixi` by following the official [installation guide](https://pixi.sh/latest/installation/).
-
-### Build and Run Steps
-
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/davy39/xeus-ocaml.git
-    cd xeus-ocaml
-    ```
-
-2.  **Set up the OCaml Environment**
-    This command initializes an `opam` switch inside the project's `.pixi` directory, installs the OCaml compiler, and locks the project's OCaml dependencies.
-    ```bash
-    pixi run -e ocaml setup
-    ```
-
-3.  **Build the OCaml Backend to JavaScript**
-    This compiles all the OCaml source code into the `ocaml/xocaml.js` file.
-    ```bash
-    pixi run -e ocaml build
-    ```
-4.  **Build the Kernel**
-    This build the kernel and create a conda package.
-    ```bash
-    pixi run build-kernel
-    ```
-5.  **Install the kernel**
-    This install the kernel to be used with Jupyterlite.
-    ```bash
-    pixi run install-kernel
-    ```
-6.  **Serve Jupyterlite**
-    This build and serve the Jupyterlite interface.
-    ```bash
-    pixi run install-kernel
-    ```
-    You can now access the local JupyterLite instance in your browser, typically at `http://localhost:8000`.
-
-7.  **All in one command**
-    This is a convenience command that performs all steps:
-    ```bash
-    pixi run build-all-serve
-    ```
-
-
-## 🧪 Testing
-
-The project includes a Jest test suite for the JavaScript API generated from the OCaml code. These tests verify the core functionality of code evaluation and Merlin integration in isolation.
-
-The tests are located in the `ocaml/tests/` directory. To run them, first ensure the OCaml backend is built (`pixi run -e ocaml build`), then execute:
-```bash
-pixi run -e test test
-```
+We welcome contributions! If you're interested in the project's architecture, setting up a local development environment, or contributing code, please see our **[CONTRIBUTING.md](CONTRIBUTING.md)** guide for detailed information.
 
 ## 🗺️ Roadmap
 
@@ -147,20 +92,12 @@ pixi run -e test test
 -   [x] Code completion powered by an in-browser Merlin instance.
 -   [x] Code inspection for tooltips (Shift+Tab) and the inspector panel.
 -   [x] **Rich Outputs**: Display HTML, Markdown, SVG, JSON, and Vega-Lite plots directly from OCaml code using the auto-opened `Xlib` module.
+-   [x] **Library Management**: Dynamically fetch and load pre-compiled OCaml libraries from within a notebook session via the `#require "my_lib";;` directive.
 
 ### Future Work
--   [ ] **Library Management**: Implement a mechanism to dynamically fetch and load pre-compiled OCaml libraries from within a notebook session (e.g., via `#require`).
 -   [ ] **Virtual Filesystem**: Expose APIs to read and write to the Emscripten virtual filesystem from OCaml, enabling file manipulation and data loading.
 -   [ ] **User Input**: Add support for Jupyter's `input_request` messages to allow interactive OCaml functions like `read_line()`.
 -   [ ] **Custom Widgets**: Develop a communication bridge (`Comm`) to enable OCaml code to interact with Jupyter Widgets for creating rich, interactive outputs.
-
-## 📦 Continuous Integration and Deployment
-
-This project uses GitHub Actions for automated builds, testing, and deployment:
-
-*   **`ci.yml`**: Triggered on pushes to `main`. This workflow builds the OCaml and C++ components and runs the Jest test suite. If the version in `recipe/recipe.yaml` has been updated, it automatically creates and pushes a corresponding Git tag (e.g., `v0.2.0`).
-*   **`release.yml`**: Triggered when a version tag is pushed. This workflow builds the final conda package, uploads it to the `xeus-ocaml` channel on prefix.dev, creates a GitHub Release with the package as an asset, and deploys the latest JupyterLite site to GitHub Pages.
-*   **`page.yml`**: A manually triggered workflow to deploy the JupyterLite site to GitHub Pages on-demand.
 
 ## 🙏 Acknowledgements
 

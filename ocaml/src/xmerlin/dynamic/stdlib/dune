@@ -1,21 +1,33 @@
+; Find the cmi for merlin autocomplete, and cmt/cmti for merlin doc
+(rule
+ (targets stdlib_files.stamp)
+ (deps
+  (universe))
+ (action
+  (progn
+   (bash "for f in $(ocamlfind query stdlib)/*.cmi; do [ -f \"$f\" ] && [[ $(basename \"$f\") = stdlib* ]] && cp \"$f\" . || true; done")
+   (bash "for f in $(ocamlfind query stdlib)/*.cmt; do [ -f \"$f\" ] && [[ $(basename \"$f\") = stdlib* ]] && cp \"$f\" . || true; done")
+   (bash "for f in $(ocamlfind query stdlib)/*.cmti; do [ -f \"$f\" ] && [[ $(basename \"$f\") = stdlib* ]] && cp \"$f\" . || true; done")
+   (bash "touch stdlib_files.stamp"))))
 
+
+
+; Copy cmi/cmt/cmti of our Xlib library
 (rule
 (alias merlin_files)
- (mode promote) 
  (target xlib.cmi)
  (action
   (copy %{lib:xocaml.lib:xlib.cmi} %{target})))
 
 (rule
 (alias merlin_files)
- (mode promote) 
  (target xlib.cmt)
  (action
   (copy %{lib:xocaml.lib:xlib.cmt} %{target})))
 
 (rule
 (alias merlin_files)
- (mode promote) 
  (target xlib.cmti)
  (action
   (copy %{lib:xocaml.lib:xlib.cmti} %{target})))
+

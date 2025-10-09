@@ -15,7 +15,7 @@ set(XEUS_OCAML_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Versionning
 # ===========
 
-file(STRINGS "${XEUS_OCAML_INCLUDE_DIR}/xeus-ocaml/xeus_ocaml_config.hpp" version_defines
+file(STRINGS "${XEUS_OCAML_INCLUDE_DIR}/xeus_ocaml_config.hpp" version_defines
      REGEX "#define XEUS_OCAML_VERSION_(MAJOR|MINOR|PATCH)")
 foreach (ver ${version_defines})
     if (ver MATCHES "#define XEUS_OCAML_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
@@ -35,34 +35,38 @@ if (NOT DEFINED XEUS_OCAML_KERNELSPEC_PATH)
     set(XEUS_OCAML_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-# 1. Define the directory where the files are located
-set(MERLIN_STDLIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ocaml/src/xmerlin/dynamic/stdlib")
+# --- START: Logic to build shared metadata JSON ---
 
-# 2. Find all files in that directory.
-#    CONFIGURE_DEPENDS ensures that if files are added/removed, CMake will re-run.
+# 1. Define directories for dynamic assets
+set(MERLIN_STDLIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ocaml-build/xmerlin/dynamic/stdlib")
+set(JS_BUNDLE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ocaml-build/xbundle") # NEW
+
+# 2. Find all relevant files
 file(GLOB STDLIB_FILES CONFIGURE_DEPENDS "${MERLIN_STDLIB_DIR}/*")
+file(GLOB JS_BUNDLE_FILES CONFIGURE_DEPENDS "${JS_BUNDLE_DIR}/*.js") # NEW
 
 # 3. Loop through the files and build a list of JSON key-value pairs
 set(JSON_PAIRS "")
 foreach(filepath ${STDLIB_FILES})
-    # Get just the filename from the full path
     get_filename_component(filename ${filepath} NAME)
-    # Create the JSON pair string: "filename.txt": "lib/filename.txt"
-    # We escape the quotes for the CMake string.
     list(APPEND JSON_PAIRS "\"${filename}\": \"lib/stdlib/${filename}\"")
+endforeach()
+
+# NEW: Loop through the JS bundle files and add them to the JSON list
+foreach(filepath ${JS_BUNDLE_FILES})
+    get_filename_component(filename ${filepath} NAME)
+    list(APPEND JSON_PAIRS "\"${filename}\": \"lib/jslibs/${filename}\"")
 endforeach()
 
 # 4. Join the pairs with a comma and space
 string(JOIN ", " JSON_PAIRS_STRING ${JSON_PAIRS})
 
 # 5. Wrap the final string in curly braces to form a valid JSON object
-#    This variable will replace the placeholder in kernel.json.in
 set(XEUS_OCAML_SHARED_METADATA "{${JSON_PAIRS_STRING}}")
 
-# For debugging, you can print the generated string
 message(STATUS "Generated shared metadata: ${XEUS_OCAML_SHARED_METADATA}")
 
-# --- END: New logic ---
+# --- END: Shared metadata logic ---
 
 
 
@@ -134,18 +138,19 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
-
 # Source files
 # ============
 
 set(XEUS_OCAML_HEADERS
-    include/xeus-ocaml/xeus_ocaml_config.hpp
-    include/xeus-ocaml/xinterpreter.hpp
+    include/xeus_ocaml_config.hpp
+    include/xinterpreter.hpp
 )
 
 set(XEUS_OCAML_SRC
     src/xinterpreter.cpp
-
+    src/xocaml_engine.cpp
+    src/xcompletion.cpp
+    src/xinspection.cpp
 )
 
 set(XEUS_OCAML_MAIN_SRC
@@ -317,7 +322,7 @@ target_link_options(xocaml
     PUBLIC "SHELL: -s MAIN_MODULE=1"
     PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
     PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
-    PUBLIC "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/ocaml/xocaml.js"
+    PUBLIC "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/ocaml-build/xocaml/xocaml.bc.js"
     PUBLIC "SHELL:--post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"
 )
 
@@ -335,7 +340,7 @@ if (XEUS_OCAML_BUILD_SHARED)
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xeus-ocaml)
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
     # Makes the project importable from the build directory
     export(EXPORT ${PROJECT_NAME}-targets
@@ -398,9 +403,15 @@ if(EMSCRIPTEN)
     install(TARGETS xocaml
             ARCHIVE DESTINATION ${XEUS_OCAML_CMAKECONFIG_INSTALL_DIR})
 
-    install(DIRECTORY
-            "${CMAKE_CURRENT_SOURCE_DIR}/ocaml/src/xmerlin/dynamic/stdlib"
-            DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(DIRECTORY "${MERLIN_STDLIB_DIR}/"
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/stdlib)
+
+    # NEW: Install the bundled OCaml-JS libraries, if they exist
+    if(EXISTS ${JS_BUNDLE_DIR})
+        install(DIRECTORY "${JS_BUNDLE_DIR}/"
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/jslibs
+                FILES_MATCHING PATTERN "*.js")
+    endif()
 
     install(FILES
             "$<TARGET_FILE_DIR:xocaml>/xocaml.js"

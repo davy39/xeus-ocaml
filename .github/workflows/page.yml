@@ -27,8 +27,8 @@ jobs:
         with:
           cache: true
 
-      - name: Build xocaml.js
-        run: pixi run -e ocaml setup &&  pixi run -e ocaml release
+      - name: Setup Ocaml environment
+        run: pixi run -e ocaml setup
       
       - name: Build kernel & jupyterlite
         run: pixi run build-all

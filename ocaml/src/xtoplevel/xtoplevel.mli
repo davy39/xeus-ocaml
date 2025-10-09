@@ -1,27 +1,19 @@
 (**
- * @module Xtoplevel
- * @description Provides the core functionality for an OCaml toplevel environment.
- * This module handles the setup and evaluation of OCaml code, capturing all
- * standard and rich outputs for display.
+ * @file xtoplevel.mli
+ * @brief The main public interface for the web-based OCaml toplevel.
  *)
 
 (**
- * @name eval
- * @description Executes a string of OCaml code and captures all resulting outputs.
- *              This function implements a robust phrase-by-phrase evaluation
- *              strategy to correctly handle multi-statement inputs.
- * @param code The OCaml source code to execute.
- * @return [Protocol.output list] A list of all captured outputs, ordered
- *         chronologically.
+ * Initializes the OCaml toplevel environment. Must be called once before [eval].
+ *
+ * @param url The base URL where library files (.js) are located.
  *)
-val eval : string -> Protocol.output list
+val setup : url:string -> unit
 
 (**
- * @name setup
- * @description Initializes the OCaml toplevel environment. This function must be
- *              called once before any code evaluation. It configures the
- *              toplevel and automatically opens the `Xlib` module to make
- *              rich display functions globally available.
- * @return [unit]
+ * Evaluates a string of OCaml code.
+ *
+ * @param code The OCaml code to evaluate.
+ * @return A promise that resolves to a list of all captured outputs.
  *)
-val setup : unit -> unit
+val eval : string -> Protocol.output list Lwt.t

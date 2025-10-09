@@ -53,7 +53,7 @@ global.caml_ml_merlin_fs_exact_case = (path) => path;
 global.caml_ml_merlin_fs_exact_case_basename = (path) => 0;
 
 // --- Load the OCaml Kernel and Expose the API (unchanged) ---
-const ocamlKernel = require('../xocaml.js');
+const ocamlKernel = require('../_build/default/src/xocaml/xocaml.bc.js');
 global.xocaml_api = {
   merlinSync: ocamlKernel.xocaml.processMerlinAction,
   toplevelAsync: ocamlKernel.xocaml.processToplevelAction,

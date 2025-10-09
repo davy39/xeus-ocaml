@@ -7,7 +7,7 @@ describe('XOCaml Hybrid API (Async Pre-fetch)', () => {
   // Setup is async, so beforeAll must be async.
   beforeAll(async () => {
     console.log('--- beforeAll: Running async Setup command ---');
-    const setupPayload = { dsc_url: "./src/xmerlin/dynamic/stdlib" };
+    const setupPayload = { dsc_url: "./_build/default/src/xmerlin/dynamic/stdlib" };
     const response = await callToplevelAsync('Setup', setupPayload);
     
     expect(response.class).toBe('return');
