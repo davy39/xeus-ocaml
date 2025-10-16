@@ -1,5 +1,5 @@
 context:
-  version: 0.2.6 # Set in include/xeus_ocaml_config.hpp
+  version: 0.2.7 # Set in include/xeus_ocaml_config.hpp
 
 package:
   name: xeus-ocaml

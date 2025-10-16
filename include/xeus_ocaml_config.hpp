@@ -12,7 +12,7 @@
 // Project version
 #define XEUS_OCAML_VERSION_MAJOR 0
 #define XEUS_OCAML_VERSION_MINOR 2
-#define XEUS_OCAML_VERSION_PATCH 6
+#define XEUS_OCAML_VERSION_PATCH 7
 
 // Composing the version string from major, minor and patch
 #define XEUS_OCAML_CONCATENATE(A, B) XEUS_OCAML_CONCATENATE_IMPL(A, B)
