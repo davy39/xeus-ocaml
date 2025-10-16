@@ -77,6 +77,19 @@ namespace xeus_ocaml
         void shutdown_request_impl() override;
 
         /**
+         * @brief Discovers the kernel's root URL at runtime.
+         *
+         * This function interacts with the Emscripten JavaScript environment to find
+         * the base URL where the kernel's assets (WASM, JS, stdlib files) are hosted.
+         * It relies on the `Module.locateFile` function provided by the host
+         * environment (e.g., jupyterlite-xeus).
+         *
+         * @return The discovered root URL, typically in the format
+         *         `.../xeus/<env_name>/xocaml`.
+         */
+        std::string get_kernel_url();
+
+        /**
          * @brief Processes and publishes outputs from a successful execution.
          * @param request_id The ID of the original request.
          * @param outputs A JSON array of outputs from the OCaml toplevel.

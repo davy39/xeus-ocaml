@@ -1,10 +1,10 @@
 /***************************************************************************
-* Copyright (c) 2025, Davy Cottet
-*
-* Distributed under the terms of the GNU General Public License v3.
-*
-* The full license is in the file LICENSE, distributed with this software.
-****************************************************************************/
+ * Copyright (c) 2025, Davy Cottet
+ *
+ * Distributed under the terms of the GNU General Public License v3.
+ *
+ * The full license is in the file LICENSE, distributed with this software.
+ ****************************************************************************/
 
 #include "xinterpreter.hpp"
 #include "xocaml_engine.hpp"
@@ -26,7 +26,7 @@ namespace xeus_ocaml
     namespace
     {
         // Global pointer to the interpreter instance for C-style callbacks.
-        interpreter* g_interpreter_instance = nullptr;
+        interpreter *g_interpreter_instance = nullptr;
     }
 
     /**
@@ -39,7 +39,7 @@ namespace xeus_ocaml
      * @param result_str A JSON string from the OCaml backend indicating the result
      *                   of the setup operation.
      */
-    void global_setup_callback(const std::string& result_str)
+    void global_setup_callback(const std::string &result_str)
     {
         if (g_interpreter_instance)
         {
@@ -59,7 +59,7 @@ namespace xeus_ocaml
      * @param result_str A JSON string from the OCaml backend containing the
      *                   execution outputs or an error message.
      */
-    void global_eval_callback(int request_id, const std::string& result_str)
+    void global_eval_callback(int request_id, const std::string &result_str)
     {
         if (g_interpreter_instance)
         {
@@ -88,7 +88,7 @@ namespace xeus_ocaml
     }
 
     // Handles the setup result from OCaml (Phase 1) and triggers C++-side setup (Phase 2).
-    void interpreter::handle_setup_callback(const std::string& result_str)
+    void interpreter::handle_setup_callback(const std::string &result_str)
     {
         nl::json result = nl::json::parse(result_str);
         if (result.value("class", "") == "return")
@@ -101,13 +101,59 @@ namespace xeus_ocaml
         }
     }
 
-    // Called once at kernel startup to configure the interpreter by calling the OCaml setup.
+    std::string interpreter::get_kernel_url()
+    {
+        try
+        {
+            // Get the global Emscripten Module object. It might be named '_Module'.
+            emscripten::val module = emscripten::val::global("_Module");
+            if (module.isUndefined())
+            {
+                module = emscripten::val::global("Module");
+            }
+
+            if (module.isUndefined() || !module.hasOwnProperty("locateFile"))
+            {
+                throw std::runtime_error("Cannot find Emscripten Module or locateFile function.");
+            }
+
+            // Call Module.locateFile('libxeus.so') to get a full URL.
+            // This returns a path like: "http://.../xeus/<env_name>/libxeus.so"
+            std::string located_path = module.call<std::string>("locateFile", std::string("libxeus.so"));
+
+            // Parse the string to get the base path for the environment.
+            // e.g., "http://.../xeus/<env_name>"
+            size_t last_slash = located_path.find_last_of('/');
+            if (last_slash == std::string::npos)
+            {
+                throw std::runtime_error("Could not parse kernel root URL from locateFile result.");
+            }
+            std::string kernel_root_url = located_path.substr(0, last_slash);
+
+            // Append the kernel-specific subdirectory name.
+            kernel_root_url += "/xocaml";
+
+            std::cout << "[xeus-ocaml][C++] Discovered kernel root URL: " << kernel_root_url << std::endl;
+            return kernel_root_url;
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "[xeus-ocaml][C++] CRITICAL: Failed to discover kernel root URL: " << e.what() << std::endl;
+            // Fallback to a relative path that includes our subdirectory.
+            return "../xocaml";
+        }
+    }
+
+    // configure_impl is now much simpler.
     void interpreter::configure_impl()
     {
+        // Get the dynamically discovered URL.
+        std::string kernel_url = get_kernel_url();
+
+        // Construct the setup request with the discovered URL.
         nl::json setup_request = {
             "Setup",
-            {{"dsc_url", "../../../../xeus/kernel/xocaml/"}}
-        };
+            {{"dsc_url", kernel_url}}};
 
         emscripten::val on_setup_complete = emscripten::val::module_property("global_setup_callback");
         ocaml_engine::call_toplevel_async(setup_request, on_setup_complete);
@@ -117,7 +163,7 @@ namespace xeus_ocaml
     void interpreter::execute_request_impl(
         send_reply_callback cb,
         int execution_counter,
-        const std::string& code,
+        const std::string &code,
         xeus::execute_request_config,
         nl::json)
     {
@@ -134,80 +180,106 @@ namespace xeus_ocaml
     }
 
     // Processes the result from an asynchronous OCaml execution.
-    void interpreter::handle_eval_callback(int request_id, const std::string& result_str)
+    void interpreter::handle_eval_callback(int request_id, const std::string &result_str)
     {
-        try {
+        try
+        {
             nl::json response = nl::json::parse(result_str);
-            if (response.value("class", "") == "return") {
+            if (response.value("class", "") == "return")
+            {
                 handle_execution_output(request_id, response.value("value", nl::json::array()));
                 handle_final_response(request_id, ""); // Signal success
-            } else {
+            }
+            else
+            {
                 handle_final_response(request_id, response.value("value", "Unknown execution error."));
             }
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception &e)
+        {
             std::string error_msg = "Failed to parse execution response: " + std::string(e.what());
             handle_final_response(request_id, error_msg);
         }
     }
 
     // Iterates through execution results and publishes them to the frontend.
-    void interpreter::handle_execution_output(int request_id, const nl::json& outputs)
+    void interpreter::handle_execution_output(int request_id, const nl::json &outputs)
     {
         auto it = m_pending_requests.find(request_id);
-        if (it == m_pending_requests.end()) return;
+        if (it == m_pending_requests.end())
+            return;
 
         int execution_count = it->second.m_execution_count;
-        for (const auto& output_item : outputs) {
-            if (!output_item.is_array() || output_item.size() != 2) continue;
-            
-            const std::string& output_type = output_item[0].get<std::string>();
-            if (output_type == "Stdout") {
+        for (const auto &output_item : outputs)
+        {
+            if (!output_item.is_array() || output_item.size() != 2)
+                continue;
+
+            const std::string &output_type = output_item[0].get<std::string>();
+            if (output_type == "Stdout")
+            {
                 publish_stream("stdout", output_item[1].get<std::string>());
-            } else if (output_type == "Stderr") {
+            }
+            else if (output_type == "Stderr")
+            {
                 publish_stream("stderr", output_item[1].get<std::string>());
-            } else if (output_type == "Value") {
+            }
+            else if (output_type == "Value")
+            {
                 publish_execution_result(execution_count, {{"text/plain", output_item[1].get<std::string>()}}, {});
-            } else if (output_type == "DisplayData") {
+            }
+            else if (output_type == "DisplayData")
+            {
                 this->display_data(output_item[1], {}, {});
             }
         }
     }
 
     // Sends the final `execute_reply` (either success or error) to the frontend.
-    void interpreter::handle_final_response(int request_id, const std::string& error_summary)
+    void interpreter::handle_final_response(int request_id, const std::string &error_summary)
     {
         auto it = m_pending_requests.find(request_id);
-        if (it == m_pending_requests.end()) return;
+        if (it == m_pending_requests.end())
+            return;
 
-        auto& cb = it->second.m_callback;
-        if (!error_summary.empty()) {
+        auto &cb = it->second.m_callback;
+        if (!error_summary.empty())
+        {
             cb(xeus::create_error_reply("OCaml Execution Error", error_summary, {}));
-        } else {
+        }
+        else
+        {
             cb(xeus::create_successful_reply());
         }
         m_pending_requests.erase(it);
     }
 
     // Handles a `complete_request` by delegating to the completion handler.
-    nl::json interpreter::complete_request_impl(const std::string& code, int cursor_pos) {
+    nl::json interpreter::complete_request_impl(const std::string &code, int cursor_pos)
+    {
         return handle_completion_request(code, cursor_pos);
     }
 
     // Handles an `inspect_request` by delegating to the inspection handler.
-    nl::json interpreter::inspect_request_impl(const std::string& code, int cursor_pos, int detail_level) {
+    nl::json interpreter::inspect_request_impl(const std::string &code, int cursor_pos, int detail_level)
+    {
         return handle_inspection_request(code, cursor_pos, detail_level);
     }
 
     // Checks if a block of code is complete (e.g., ends with `;;`).
-    nl::json interpreter::is_complete_request_impl(const std::string& code) {
-        if (code.find_first_not_of(" \t\n\r") == std::string::npos) {
+    nl::json interpreter::is_complete_request_impl(const std::string &code)
+    {
+        if (code.find_first_not_of(" \t\n\r") == std::string::npos)
+        {
             return xeus::create_is_complete_reply("complete");
         }
         auto last_char = code.find_last_not_of(" \t\n\r");
-        if (last_char == std::string::npos || last_char < 1) {
+        if (last_char == std::string::npos || last_char < 1)
+        {
             return xeus::create_is_complete_reply("incomplete", "  ");
         }
-        if (code[last_char] == ';' && code[last_char - 1] == ';') {
+        if (code[last_char] == ';' && code[last_char - 1] == ';')
+        {
             return xeus::create_is_complete_reply("complete");
         }
         return xeus::create_is_complete_reply("incomplete", "  ");
@@ -217,13 +289,13 @@ namespace xeus_ocaml
     void interpreter::shutdown_request_impl() {}
 
     // Provides information about the kernel.
-    nl::json interpreter::kernel_info_request_impl() {
+    nl::json interpreter::kernel_info_request_impl()
+    {
         return xeus::create_info_reply(
             "5.3", "xocaml", XEUS_OCAML_VERSION,
             "ocaml", "5.2.0", "text/x-ocaml", ".ml",
             "ocaml", "ocaml", "",
             "xeus-ocaml - A WebAssembly OCaml kernel for Jupyter",
-            false, nl::json::array()
-        );
+            false, nl::json::array());
     }
 }
