@@ -232,6 +232,7 @@ sync-version = "python scripts/sync_version.py"
 verify-version = "python scripts/sync_version.py --check"
 
 
+source-sha = "python scripts/sync_version.py --sha"
 #==============================================================================
 # [feature.docs]: Documentation Generation Environment
 #==============================================================================
