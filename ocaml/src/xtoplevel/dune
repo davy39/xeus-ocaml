@@ -2,7 +2,8 @@
  (name xtoplevel)
  (public_name xocaml.xtoplevel)
  (modules xtoplevel)
- (preprocess (pps js_of_ocaml-ppx lwt_ppx))
+ (preprocess
+  (pps js_of_ocaml-ppx lwt_ppx))
  (libraries
   xocaml.protocol
   xocaml.lib
@@ -11,6 +12,4 @@
   xocaml.libloader
   js_of_ocaml
   js_of_ocaml-toplevel
-  js_of_ocaml-lwt
-  )  
-)
+  js_of_ocaml-lwt))

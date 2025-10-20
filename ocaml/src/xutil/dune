@@ -1,20 +1,20 @@
 (env
  (dev
-  (env-vars (CPPO_FLAGS "-D JS_LOG")))
+  (env-vars
+   (CPPO_FLAGS "-D JS_LOG")))
  (release
-  (env-vars (CPPO_FLAGS ""))))
+  (env-vars
+   (CPPO_FLAGS ""))))
 
 (rule
  (targets xutil.ml)
  (deps xutil.cppo.ml)
- (action 
+ (action
   (bash "cppo %{env:CPPO_FLAGS=} %{deps} -o %{targets}")))
 
 (library
  (name xutil)
  (public_name xocaml.xutil)
- (preprocess (pps js_of_ocaml-ppx))
-  (libraries
-  js_of_ocaml
-  ))
-
+ (preprocess
+  (pps js_of_ocaml-ppx))
+ (libraries js_of_ocaml))

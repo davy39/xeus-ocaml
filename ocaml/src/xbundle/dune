@@ -1,13 +1,13 @@
 (executable
  (public_name xbundle)
  (name xbundle)
-  (modules xbundle)
+ (modules xbundle)
  (libraries bos cmdliner yojson)
  (package xocaml))
- 
+
 (rule
  (alias bundle)
- (targets  external_libs.ml)
+ (targets external_libs.ml)
  (deps xbundle.exe libs.txt)
  (action
   (progn

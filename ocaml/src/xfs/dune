@@ -1,10 +1,6 @@
 (library
  (name xfs)
  (public_name xocaml.xfs)
- (libraries 
- js_of_ocaml 
- xocaml.xutil
- )
+ (libraries js_of_ocaml xocaml.xutil)
  (preprocess
   (pps js_of_ocaml-ppx)))
-

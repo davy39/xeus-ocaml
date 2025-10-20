@@ -1,10 +1,10 @@
 (library
  (name protocol)
  (public_name xocaml.protocol)
- (preprocess (pps ppx_deriving_yojson))
+ (preprocess
+  (pps ppx_deriving_yojson))
  (libraries
   merlin-lib.ocaml_parsing
   merlin-lib.query_protocol
   merlin-lib.kernel
-  yojson
-  ))
+  yojson))

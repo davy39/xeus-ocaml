@@ -1,33 +1,34 @@
 ; Find the cmi for merlin autocomplete, and cmt/cmti for merlin doc
+
 (rule
  (targets stdlib_files.stamp)
- (deps
-  (universe))
+ (deps (universe))
  (action
   (progn
-   (bash "for f in $(ocamlfind query stdlib)/*.cmi; do [ -f \"$f\" ] && [[ $(basename \"$f\") != \"stdlib.cmi\" ]] && cp \"$f\" . || true; done")
-   (bash "for f in $(ocamlfind query stdlib)/*.cmt; do [ -f \"$f\" ] && [[ $(basename \"$f\") = stdlib* ]] && cp \"$f\" . || true; done")
-   (bash "for f in $(ocamlfind query stdlib)/*.cmti; do [ -f \"$f\" ] && [[ $(basename \"$f\") = stdlib* ]] && cp \"$f\" . || true; done")
+   (bash
+    "for f in $(ocamlfind query stdlib)/*.cmi; do [ -f \"$f\" ] && [[ $(basename \"$f\") != \"stdlib.cmi\" ]] && cp \"$f\" . || true; done")
+   (bash
+    "for f in $(ocamlfind query stdlib)/*.cmt; do [ -f \"$f\" ] && [[ $(basename \"$f\") = stdlib* ]] && cp \"$f\" . || true; done")
+   (bash
+    "for f in $(ocamlfind query stdlib)/*.cmti; do [ -f \"$f\" ] && [[ $(basename \"$f\") = stdlib* ]] && cp \"$f\" . || true; done")
    (bash "touch stdlib_files.stamp"))))
 
-
-
 ; Copy cmi/cmt/cmti of our Xlib library
+
 (rule
-(alias xlib_files)
+ (alias xlib_files)
  (target xlib.cmi)
  (action
   (copy %{lib:xocaml.lib:xlib.cmi} %{target})))
 
 (rule
-(alias xlib_files)
+ (alias xlib_files)
  (target xlib.cmt)
  (action
   (copy %{lib:xocaml.lib:xlib.cmt} %{target})))
 
 (rule
-(alias xlib_files)
+ (alias xlib_files)
  (target xlib.cmti)
  (action
   (copy %{lib:xocaml.lib:xlib.cmti} %{target})))
-

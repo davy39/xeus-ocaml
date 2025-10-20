@@ -2,9 +2,6 @@
  (name xnetwork)
  (public_name xocaml.xnetwork)
  (modules xnetwork)
- (preprocess (pps js_of_ocaml-ppx lwt_ppx))
-  (libraries
-  js_of_ocaml
-  js_of_ocaml-lwt
-  xocaml.xutil
-  ))
+ (preprocess
+  (pps js_of_ocaml-ppx lwt_ppx))
+ (libraries js_of_ocaml js_of_ocaml-lwt xocaml.xutil))

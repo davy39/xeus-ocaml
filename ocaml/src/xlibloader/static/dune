@@ -4,13 +4,13 @@
   gen_static.ml
   (glob_files stdlib/*{cmi,cmt,cmti}))
  (action
-  (run ocaml %{dep:gen_static.ml}))
-  )
+  (run ocaml %{dep:gen_static.ml})))
 
 (library
  (name static_files)
  (public_name xocaml.libloader.static_files)
  (modules static_files)
- (preprocess (pps ppx_blob))
+ (preprocess
+  (pps ppx_blob))
  (preprocessor_deps
   (glob_files stdlib/*{cmi,cmt,cmti})))

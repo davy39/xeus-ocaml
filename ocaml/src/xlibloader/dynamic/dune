@@ -1,6 +1,6 @@
 (rule
- (target dynamic_files.ml) 
-  (deps
+ (target dynamic_files.ml)
+ (deps
   gen_dynamic.ml
   (alias ./stdlib/xlib_files)
   (glob_files stdlib/*{cmi,cmt,cmti}))

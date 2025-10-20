@@ -2,11 +2,6 @@
  (name xlib)
  (public_name xocaml.lib)
  ; (preprocess (pps ppx_deriving_yojson))
- (libraries
- xocaml.xfs
- xocaml.xutil
-
-  xocaml.protocol
-  yojson
- )
-  (flags (:standard -bin-annot)))
+ (libraries xocaml.xfs xocaml.xutil xocaml.protocol yojson)
+ (flags
+  (:standard -bin-annot)))

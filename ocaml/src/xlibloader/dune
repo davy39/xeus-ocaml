@@ -2,7 +2,8 @@
  (name xlibloader)
  (public_name xocaml.libloader)
  (modules xlibloader)
- (preprocess (pps js_of_ocaml-ppx lwt_ppx))
+ (preprocess
+  (pps js_of_ocaml-ppx lwt_ppx))
  (libraries
   xocaml.xnetwork
   xocaml.xutil
@@ -13,5 +14,4 @@
   merlin-lib.utils
   js_of_ocaml
   js_of_ocaml-toplevel
-  js_of_ocaml-lwt
-  ))
+  js_of_ocaml-lwt))

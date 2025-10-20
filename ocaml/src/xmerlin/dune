@@ -4,7 +4,8 @@
  (modules xmerlin)
  (js_of_ocaml
   (javascript_files stubs.js))
- (preprocess (pps js_of_ocaml-ppx lwt_ppx ))
+ (preprocess
+  (pps js_of_ocaml-ppx lwt_ppx))
  (libraries
   xocaml.xutil
   protocol
@@ -16,5 +17,5 @@
   merlin-lib.ocaml_parsing
   js_of_ocaml
   js_of_ocaml-lwt
-  js_of_ocaml-ppx 
+  js_of_ocaml-ppx
   yojson))
