@@ -5,9 +5,9 @@
 # of the kernel to WebAssembly (WASM) for use in JupyterLite.
 
 ###############################################################################
-### [project]: Core Project Metadata
+### [workspace]: Core Project Metadata
 ###############################################################################
-[project]
+[workspace]
 # The name of the project.
 name = "xeus-ocaml"
 
