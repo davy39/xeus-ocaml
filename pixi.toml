@@ -14,8 +14,9 @@ name = "xeus-ocaml"
 # A list of conda channels to search for packages.
 # Pixi searches these channels in the specified order.
 channels = [
-    "conda-forge",
+    "https://repo.prefix.dev/emscripten-forge-4x",
     "https://repo.prefix.dev/emscripten-forge-dev", # Provides Emscripten (WASM) specific packages.
+    "conda-forge",
 ]
 
 # Target platforms for which this project can be built.
@@ -145,8 +146,7 @@ jupyterlab = "*"
 jupyter_server = "*"
 ipywidgets = "*"
 jupyterlab-myst = "*"
-
-# The rattler-build tool is used to build conda packages from recipe files.
+micromamba = "*"
 rattler-build = "*"
 
 
@@ -166,6 +166,7 @@ build-kernel-dev = """
 rm -f output/bld/rattler-build_xeus-ocaml/cxx_cache/xocaml.js && \
 rm -f output/bld/rattler-build_xeus-ocaml/cxx_cache/xocaml.wasm && \
 rattler-build build --recipe recipe/recipe-dev.yaml \
+            -c https://repo.prefix.dev/emscripten-forge-4x \
             -c https://repo.prefix.dev/emscripten-forge-dev \
             -c conda-forge \
             --target-platform emscripten-wasm32 \
@@ -178,6 +179,7 @@ build-kernel = """
 rm -f output/bld/rattler-build_xeus-ocaml/cxx_cache/xocaml.js && \
 rm -f output/bld/rattler-build_xeus-ocaml/cxx_cache/xocaml.wasm && \
 rattler-build build --recipe recipe/recipe-prod.yaml \
+            -c https://repo.prefix.dev/emscripten-forge-4x \
             -c https://repo.prefix.dev/emscripten-forge-dev \
             -c conda-forge \
             --target-platform emscripten-wasm32 \
@@ -260,7 +262,7 @@ build-docs-cpp = { cmd = "mkdir -p docs/build/doxygen && doxygen docs/doxygen/Do
 
 # Run Odoc to generate HTML from OCaml sources
 build-docs-ocaml = { cmd = """
-opam init --disable-sandboxing --no --compiler=5.3.0 && 
+opam init --disable-sandboxing --no --compiler=5.4.0 && 
 opam install dune && \
 opam exec -- dune pkg lock --root ocaml && \
 opam exec -- dune build --root ocaml @doc && \

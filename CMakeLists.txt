@@ -137,11 +137,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     endif ()
 endif ()
 
-if(EMSCRIPTEN)
-    # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
-    set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
-endif()
-
 # Source files
 # ============
 
@@ -326,9 +321,10 @@ target_link_options(xocaml
     PUBLIC "SHELL: -s MAIN_MODULE=1"
     PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
     PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
-    #PUBLIC "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/ocaml/src/xocaml/emscripten_device.js"  
     PUBLIC "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/ocaml-build/xocaml/xocaml.bc.js"
     PUBLIC "SHELL:--post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"
+    # Override xeus WasmBuildOptions EXPORTED_RUNTIME_METHODS to remove 'getDylinkMetadata'
+    PUBLIC "SHELL: -s EXPORTED_RUNTIME_METHODS='[\"FS\",\"ENV\",\"PATH\",\"LDSO\",\"loadDynamicLibrary\",\"ERRNO_CODES\"]'"
 )
 
 

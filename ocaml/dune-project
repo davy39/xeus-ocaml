@@ -20,7 +20,7 @@
 
  ;; This is the direct translation of your 'depends' field
  (depends
-  (ocaml (>= 5.2))
+  (ocaml (>= 5.4))
   (dune (>= 3.0))
    merlin-lib
    cppo

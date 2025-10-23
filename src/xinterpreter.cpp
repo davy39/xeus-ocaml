@@ -292,8 +292,8 @@ namespace xeus_ocaml
     nl::json interpreter::kernel_info_request_impl()
     {
         return xeus::create_info_reply(
-            "5.3", "xocaml", XEUS_OCAML_VERSION,
-            "ocaml", "5.2.0", "text/x-ocaml", ".ml",
+            "5.4", "xocaml", XEUS_OCAML_VERSION,
+            "ocaml", "5.4.0", "text/x-ocaml", ".ml",
             "ocaml", "ocaml", "",
             "xeus-ocaml - A WebAssembly OCaml kernel for Jupyter",
             false, nl::json::array());
