@@ -1,0 +1,79 @@
+@article{js_of_ocaml,
+  TITLE = {{From Bytecode to JavaScript: the Js\_of\_ocaml Compiler}},
+  AUTHOR = {Vouillon, J{\'e}r{\^o}me and Balat, Vincent},
+  URL = {https://hal.science/hal-00826786},
+  JOURNAL = {Software: Practice and Experience},
+  PUBLISHER = {{Wiley}},
+  VOLUME = {44},
+  NUMBER = {7},
+  PAGES = {843--874},
+  YEAR = {2014},
+  DOI = {10.1002/spe.2187},
+  HAL_ID = {hal-00826786},
+  HAL_VERSION = {v1},
+}
+
+@article{merlin,
+  TITLE = {{Merlin: a language server for OCaml (experience report)}},
+  AUTHOR = {Bour, Fr{\'e}d{\'e}ric and R{\'e}fis, Thomas and Scherer, Gabriel},
+  URL = {https://inria.hal.science/hal-01929161},
+  JOURNAL = {{Proceedings of the ACM on Programming Languages}},
+  PUBLISHER = {{ACM}},
+  VOLUME = {2},
+  NUMBER = {ICFP},
+  PAGES = {1 - 15},
+  YEAR = {2018},
+  MONTH = Jul,
+  DOI = {10.1145/3236798},
+  KEYWORDS = {Language servers ; Incrementality ; Incremental parsing ; Incremental typing ; Parsing ; Syntax error recovery ; Development environments ; Functional constructs ; Incremental compilers},
+  PDF = {https://inria.hal.science/hal-01929161v1/file/1807.06702.pdf},
+  HAL_ID = {hal-01929161},
+  HAL_VERSION = {v1},
+}
+
+@software{xeus-lite,
+  AUTHOR = {The Jupyter Xeus Team},
+  TITLE = {{xeus-lite:  Emscripten-based middleware for xeus}},
+  MONTH = {September},
+  YEAR = {2022},
+  PUBLISHER = {GitHub},
+  URL = {https://github.com/jupyter-xeus/xeus-lite}
+}
+
+@software{jupyterlite,
+  AUTHOR = {{The JupyterLite Team}},
+  TITLE = {{JupyterLite: Wasm-powered Jupyter running in the browser}},
+  MONTH = {June},
+  YEAR = {2021},
+  PUBLISHER = {GitHub},
+  URL = {https://github.com/jupyterlite/jupyterlite}
+}
+
+@article{jupyterhub,
+author = {Beg, Marijan and Belin, Juliette and Kluyver, Thomas and Konovalov, Alexander and Ragan-Kelley, Min and Thiéry, Nicolas and Fangohr, H.},
+year = {2021},
+month = {01},
+pages = {1-1},
+title = {Using Jupyter for Reproducible Scientific Workflows},
+volume = {PP},
+journal = {Computing in Science & Engineering},
+doi = {10.1109/MCSE.2021.3052101}
+}
+
+@inproceedings{emscripten,
+author = {Zakai, Alon},
+title = {Emscripten: an LLVM-to-JavaScript compiler},
+year = {2011},
+isbn = {9781450309424},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2048147.2048224},
+doi = {10.1145/2048147.2048224},
+abstract = {We present Emscripten, a compiler from LLVM (Low Level Virtual Machine) assembly to JavaScript. This opens up two avenues for running code written in languages other than JavaScript on the web: (1) Compile code directly into LLVM assembly, and then compile that into JavaScript using Emscripten, or (2) Compile a language's entire runtime into LLVM and then JavaScript, as in the previous approach, and then use the compiled runtime to run code written in that language. For example, the former approach can work for C and C++, while the latter can work for Python; all three examples open up new opportunities for running code on the web.Emscripten itself is written in JavaScript and is available under the MIT license (a permissive open source license), at http://www.emscripten.org. As a compiler from LLVM to JavaScript, the challenges in designing Emscripten are somewhat the reverse of the norm - one must go from a low-level assembly into a high-level language, and recreate parts of the original high-level structure of the code that were lost in the compilation to low-level LLVM. We detail the methods used in Emscripten to deal with those challenges, and in particular present and prove the validity of Emscripten's Relooper algorithm, which recreates high-level loop structures from low-level branching data.},
+booktitle = {Proceedings of the ACM International Conference Companion on Object Oriented Programming Systems Languages and Applications Companion},
+pages = {301–312},
+numpages = {12},
+keywords = {decompiler, javascript, llvm},
+location = {Portland, Oregon, USA},
+series = {OOPSLA '11}
+}
