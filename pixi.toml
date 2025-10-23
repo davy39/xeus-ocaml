@@ -140,13 +140,21 @@ platforms = ["linux-64"]
 
 [feature.build.dependencies]
 # Core dependencies for building and running JupyterLite.
-jupyterlab = "==4.4.5"
-jupyterlite-xeus = "*"
+jupyterlab = "*"
+#jupyterlite-xeus = "*"
 jupyter_server = "*"
 ipywidgets = "*"
+jupyterlab-myst = "*"
 
 # The rattler-build tool is used to build conda packages from recipe files.
 rattler-build = "*"
+
+
+[feature.build.pypi-dependencies]
+
+jupyterlite-core = { url = "https://github.com/jupyterlite/jupyterlite/releases/download/v0.7.0b0/jupyterlite_core-0.7.0b0-py3-none-any.whl"}
+jupyterlite-xeus = { url = "https://github.com/jupyterlite/xeus/releases/download/v4.3.0a3/jupyterlite_xeus-4.3.0a3-py3-none-any.whl" }
+
 
 [feature.build.tasks]
 # Builds the xeus-ocaml WASM kernel as a conda package using a recipe.

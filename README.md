@@ -19,6 +19,21 @@ Experience `xeus-ocaml` firsthand in your browser by visiting the JupyterLite de
 
 [**https://davy39.github.io/xeus-ocaml/**](https://davy39.github.io/xeus-ocaml/)
 
+
+## 🐫 Build your own
+
+You can use pixi to install jupyterlite, and then the xeus-ocaml wasm kernel :
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | sh
+mkdir my_jupyterlite && cd my_jupyterlite
+printf "name: xeus-ocaml\nchannels:\n  - https://prefix.dev/emscripten-forge-dev\ndependencies:\n  - xeus-ocaml\n" > environment.yml
+pixi init -c conda-forge -c https://repo.prefix.dev/emscripten-forge-dev
+pixi add jupyterlite-core jupyterlite-xeus
+pixi run jupyter lite serve --XeusAddon.environment_file=environment.yml
+```
+
+
 ## ✨ Features
 
 -   **Interactive OCaml Toplevel**: Execute OCaml code interactively, with persistent state between cells.

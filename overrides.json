@@ -1,0 +1,20 @@
+{
+  "@jupyterlab/apputils-extension:themes": {
+  "theme": "JupyterLab Dark"
+  },
+  "@jupyterlab/codemirror-extension:plugin": {
+  "defaultConfig": {
+    "tabSize": 2
+  }
+  },
+  "@jupyterlab/completer-extension:manager": {
+    "availableProviders": {
+      "CompletionProvider:context": 500,
+      "CompletionProvider:kernel": 550
+    },
+    "providerTimeout": 1000,
+    "showDocumentationPanel": true,
+    "autoCompletion": false,
+    "suppressIfInlineCompleterActive": true
+  }
+}
