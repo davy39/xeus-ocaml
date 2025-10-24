@@ -14,7 +14,6 @@ name = "xeus-ocaml"
 # A list of conda channels to search for packages.
 # Pixi searches these channels in the specified order.
 channels = [
-    "https://repo.prefix.dev/emscripten-forge-4x",
     "https://repo.prefix.dev/emscripten-forge-dev", # Provides Emscripten (WASM) specific packages.
     "conda-forge",
 ]
@@ -179,7 +178,6 @@ build-kernel = """
 rm -f output/bld/rattler-build_xeus-ocaml/cxx_cache/xocaml.js && \
 rm -f output/bld/rattler-build_xeus-ocaml/cxx_cache/xocaml.wasm && \
 rattler-build build --recipe recipe/recipe-prod.yaml \
-            -c https://repo.prefix.dev/emscripten-forge-4x \
             -c https://repo.prefix.dev/emscripten-forge-dev \
             -c conda-forge \
             --target-platform emscripten-wasm32 \
