@@ -27,9 +27,6 @@ jobs:
         with:
           cache: true
 
-      - name: Setup Ocaml environment
-        run: pixi run -e ocaml setup
-      
       - name: Build kernel & jupyterlite
         run: pixi run build-all
 
