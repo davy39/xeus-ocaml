@@ -291,11 +291,35 @@ namespace xeus_ocaml
     // Provides information about the kernel.
     nl::json interpreter::kernel_info_request_impl()
     {
-        return xeus::create_info_reply(
-            "5.4", "xocaml", XEUS_OCAML_VERSION,
-            "ocaml", "5.4.0", "text/x-ocaml", ".ml",
-            "ocaml", "ocaml", "",
-            "xeus-ocaml - A WebAssembly OCaml kernel for Jupyter",
-            false, nl::json::array());
+        nl::json result;
+        result["implementation"] = "xocaml";
+        result["implementation_version"] = XEUS_OCAML_VERSION;
+        result["language_info"]["version"] = "5.4.0";
+
+    /* The jupyter-console banner for xeus-ocaml is the following:
+       _  _ ____ _  _ ____    ____ ____ ____ _  _ _    
+        \/  |___ |  | [__  __ |  | |    |__| |\/| |    
+       _/\_ |___ |__| ___]    |__| |___ |  | |  | |___    
+
+      xeus-OCaml: a Jupyter kernel for OCaml
+           OCaml version: x.x.x
+        */
+    
+        std::string banner = ""
+       "_  _ ____ _  _ ____    ____ ____ ____ _  _ _     \n"
+       " \\/  |___ |  | [__  __ |  | |    |__| |\\/| |     \n"
+       "_/\\_ |___ |__| ___]    |__| |___ |  | |  | |___    \n"
+       "\n"
+       "    xeus-OCaml: a Jupyter kernel for OCaml \n"
+       "    OCaml version: ";
+              
+        banner.append(result["language_info"]["version"]);
+
+        result["banner"] = banner;
+        result["language_info"]["name"] = "OCaml";
+        result["language_info"]["codemirror_mode"] = "text/x-ocaml";
+        result["language_info"]["mimetype"] = "text/x-ocaml";
+        result["language_info"]["file_extension"] = ".ml";
+        return result;
     }
 }
