@@ -316,6 +316,7 @@ xeus_wasm_link_options(xocaml "web,worker")
 
 #
 target_link_options(xocaml
+    PUBLIC --bind
     PUBLIC "SHELL: -s WASM_BIGINT=1"
     PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
     PUBLIC "SHELL: -s MAIN_MODULE=1"
@@ -323,8 +324,6 @@ target_link_options(xocaml
     PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
     PUBLIC "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/ocaml-build/xocaml/xocaml.bc.js"
     PUBLIC "SHELL:--post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"
-    # Override xeus WasmBuildOptions EXPORTED_RUNTIME_METHODS to remove 'getDylinkMetadata'
-    PUBLIC "SHELL: -s EXPORTED_RUNTIME_METHODS='[\"FS\",\"ENV\",\"PATH\",\"LDSO\",\"loadDynamicLibrary\",\"ERRNO_CODES\"]'"
 )
 
 
