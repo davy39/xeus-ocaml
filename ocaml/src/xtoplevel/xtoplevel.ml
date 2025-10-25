@@ -115,10 +115,18 @@ let eval (code : string) : Protocol.output list Lwt.t =
   Js_of_ocaml.Sys_js.set_channel_flusher stderr (fun s -> std_outputs_ref := Protocol.Stderr s :: !std_outputs_ref);
   ignore (Xlib.get_and_clear_outputs ()); (* Clear any stale rich outputs *)
 
+  (* Helper to remove the initial newline from the toplevel formatter's output. *)
+  let trim_first_newline s =
+      if String.length s > 0 && s.[0] = '\n' then
+        String.sub s 1 (String.length s - 1)
+      else
+        s
+  in
+
   (* Function to collect all pending outputs from all sources. *)
   let get_all_pending_outputs () =
     Format.pp_print_flush formatter ();
-    let toplevel_value = Buffer.contents buffer in
+    let toplevel_value = Buffer.contents buffer |> trim_first_newline in
     Buffer.clear buffer;
     let main_output = if toplevel_value <> "" then [ Protocol.Value toplevel_value ] else [] in
     let rich_outputs = Xlib.get_and_clear_outputs () in
