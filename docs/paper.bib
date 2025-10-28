@@ -1,79 +1,263 @@
 @article{js_of_ocaml,
-  TITLE = {{From Bytecode to JavaScript: the Js\_of\_ocaml Compiler}},
-  AUTHOR = {Vouillon, J{\'e}r{\^o}me and Balat, Vincent},
-  URL = {https://hal.science/hal-00826786},
-  JOURNAL = {Software: Practice and Experience},
-  PUBLISHER = {{Wiley}},
-  VOLUME = {44},
-  NUMBER = {7},
-  PAGES = {843--874},
-  YEAR = {2014},
-  DOI = {10.1002/spe.2187},
-  HAL_ID = {hal-00826786},
-  HAL_VERSION = {v1},
+  title       = {{From Bytecode to JavaScript: the Js\_of\_ocaml Compiler}},
+  author      = {Vouillon, J{\'e}r{\^o}me and Balat, Vincent},
+  url         = {https://hal.science/hal-00826786},
+  journal     = {Software: Practice and Experience},
+  publisher   = {{Wiley}},
+  volume      = {44},
+  number      = {7},
+  pages       = {843--874},
+  year        = {2014},
+  doi         = {10.1002/spe.2187},
+  hal_id      = {hal-00826786},
+  hal_version = {v1}
 }
 
 @article{merlin,
-  TITLE = {{Merlin: a language server for OCaml (experience report)}},
-  AUTHOR = {Bour, Fr{\'e}d{\'e}ric and R{\'e}fis, Thomas and Scherer, Gabriel},
-  URL = {https://inria.hal.science/hal-01929161},
-  JOURNAL = {{Proceedings of the ACM on Programming Languages}},
-  PUBLISHER = {{ACM}},
-  VOLUME = {2},
-  NUMBER = {ICFP},
-  PAGES = {1 - 15},
-  YEAR = {2018},
-  MONTH = Jul,
-  DOI = {10.1145/3236798},
-  KEYWORDS = {Language servers ; Incrementality ; Incremental parsing ; Incremental typing ; Parsing ; Syntax error recovery ; Development environments ; Functional constructs ; Incremental compilers},
-  PDF = {https://inria.hal.science/hal-01929161v1/file/1807.06702.pdf},
-  HAL_ID = {hal-01929161},
-  HAL_VERSION = {v1},
+  title       = {{Merlin: a language server for OCaml (experience report)}},
+  author      = {Bour, Fr{\'e}d{\'e}ric and R{\'e}fis, Thomas and Scherer, Gabriel},
+  url         = {https://inria.hal.science/hal-01929161},
+  journal     = {{Proceedings of the ACM on Programming Languages}},
+  publisher   = {{ACM}},
+  volume      = {2},
+  number      = {ICFP},
+  pages       = {1 - 15},
+  year        = {2018},
+  month       = Jul,
+  doi         = {10.1145/3236798},
+  keywords    = {Language servers ; Incrementality ; Incremental parsing ; Incremental typing ; Parsing ; Syntax error recovery ; Development environments ; Functional constructs ; Incremental compilers},
+  pdf         = {https://inria.hal.science/hal-01929161v1/file/1807.06702.pdf},
+  hal_id      = {hal-01929161},
+  hal_version = {v1}
 }
 
-@software{xeus-lite,
-  AUTHOR = {The Jupyter Xeus Team},
-  TITLE = {{xeus-lite:  Emscripten-based middleware for xeus}},
-  MONTH = {September},
-  YEAR = {2022},
-  PUBLISHER = {GitHub},
-  URL = {https://github.com/jupyter-xeus/xeus-lite}
+
+@misc{xeus-lite,
+  author    = {The Jupyter Xeus Team},
+  title     = {{xeus-lite:  Emscripten-based middleware for xeus}},
+  month     = {September},
+  year      = {2022},
+  publisher = {GitHub},
+  journal   = {GitHub repository},
+  url       = {https://github.com/jupyter-xeus/xeus-lite}
 }
 
-@software{jupyterlite,
-  AUTHOR = {{The JupyterLite Team}},
-  TITLE = {{JupyterLite: Wasm-powered Jupyter running in the browser}},
-  MONTH = {June},
-  YEAR = {2021},
-  PUBLISHER = {GitHub},
-  URL = {https://github.com/jupyterlite/jupyterlite}
-}
-
-@article{jupyterhub,
-author = {Beg, Marijan and Belin, Juliette and Kluyver, Thomas and Konovalov, Alexander and Ragan-Kelley, Min and Thiéry, Nicolas and Fangohr, H.},
-year = {2021},
-month = {01},
-pages = {1-1},
-title = {Using Jupyter for Reproducible Scientific Workflows},
-volume = {PP},
-journal = {Computing in Science & Engineering},
-doi = {10.1109/MCSE.2021.3052101}
+@misc{jupyterlite,
+  author    = {The JupyterLite Team},
+  title     = {JupyterLite: Wasm-powered Jupyter running in the browser},
+  month     = {June},
+  year      = {2021},
+  publisher = {GitHub},
+  journal   = {GitHub repository},
+  url       = {https://github.com/jupyterlite/jupyterlite}
 }
 
 @inproceedings{emscripten,
-author = {Zakai, Alon},
-title = {Emscripten: an LLVM-to-JavaScript compiler},
-year = {2011},
-isbn = {9781450309424},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/2048147.2048224},
-doi = {10.1145/2048147.2048224},
-abstract = {We present Emscripten, a compiler from LLVM (Low Level Virtual Machine) assembly to JavaScript. This opens up two avenues for running code written in languages other than JavaScript on the web: (1) Compile code directly into LLVM assembly, and then compile that into JavaScript using Emscripten, or (2) Compile a language's entire runtime into LLVM and then JavaScript, as in the previous approach, and then use the compiled runtime to run code written in that language. For example, the former approach can work for C and C++, while the latter can work for Python; all three examples open up new opportunities for running code on the web.Emscripten itself is written in JavaScript and is available under the MIT license (a permissive open source license), at http://www.emscripten.org. As a compiler from LLVM to JavaScript, the challenges in designing Emscripten are somewhat the reverse of the norm - one must go from a low-level assembly into a high-level language, and recreate parts of the original high-level structure of the code that were lost in the compilation to low-level LLVM. We detail the methods used in Emscripten to deal with those challenges, and in particular present and prove the validity of Emscripten's Relooper algorithm, which recreates high-level loop structures from low-level branching data.},
-booktitle = {Proceedings of the ACM International Conference Companion on Object Oriented Programming Systems Languages and Applications Companion},
-pages = {301–312},
-numpages = {12},
-keywords = {decompiler, javascript, llvm},
-location = {Portland, Oregon, USA},
-series = {OOPSLA '11}
+  author    = {Zakai, Alon},
+  title     = {Emscripten: an LLVM-to-JavaScript compiler},
+  year      = {2011},
+  isbn      = {9781450309424},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/2048147.2048224},
+  doi       = {10.1145/2048147.2048224},
+  abstract  = {We present Emscripten, a compiler from LLVM (Low Level Virtual Machine) assembly to JavaScript. This opens up two avenues for running code written in languages other than JavaScript on the web: (1) Compile code directly into LLVM assembly, and then compile that into JavaScript using Emscripten, or (2) Compile a language's entire runtime into LLVM and then JavaScript, as in the previous approach, and then use the compiled runtime to run code written in that language. For example, the former approach can work for C and C++, while the latter can work for Python; all three examples open up new opportunities for running code on the web.Emscripten itself is written in JavaScript and is available under the MIT license (a permissive open source license), at http://www.emscripten.org. As a compiler from LLVM to JavaScript, the challenges in designing Emscripten are somewhat the reverse of the norm - one must go from a low-level assembly into a high-level language, and recreate parts of the original high-level structure of the code that were lost in the compilation to low-level LLVM. We detail the methods used in Emscripten to deal with those challenges, and in particular present and prove the validity of Emscripten's Relooper algorithm, which recreates high-level loop structures from low-level branching data.},
+  booktitle = {Proceedings of the ACM International Conference Companion on Object Oriented Programming Systems Languages and Applications Companion},
+  pages     = {301–312},
+  numpages  = {12},
+  keywords  = {decompiler, javascript, llvm},
+  location  = {Portland, Oregon, USA},
+  series    = {OOPSLA '11}
+}
+
+@article{Beg2021,
+  author  = {Beg, Marijan and Belin, Juliette and Kluyver, Thomas and Konovalov, Alexander and Ragan-Kelley, Min and Thiéry, Nicolas and Fangohr, H.},
+  year    = {2021},
+  month   = {01},
+  pages   = {1-1},
+  title   = {Using Jupyter for Reproducible Scientific Workflows},
+  volume  = {PP},
+  journal = {Computing in Science & Engineering},
+  doi     = {10.1109/MCSE.2021.3052101}
+}
+
+
+@unknown{Huang2025,
+  author = {Huang, Ruanqianqian and Ravi, Savitha and He, Michael and Tian, Boyu and Lerner, Sorin and Coblenz, Michael},
+  year   = {2025},
+  month  = {03},
+  pages  = {},
+  title  = {How Scientists Use Jupyter Notebooks: Goals, Quality Attributes, and Opportunities},
+  doi    = {10.48550/arXiv.2503.12309}
+}
+
+@unknown{Siddik2025,
+  author = {Siddik, Md and Li, Hao and Bezemer, Cor-Paul},
+  year   = {2025},
+  month  = {04},
+  pages  = {},
+  title  = {A Systematic Literature Review of Software Engineering Research on Jupyter Notebook},
+  doi    = {10.48550/arXiv.2504.16180}
+}
+
+@article{Topsakal2023,
+  author  = {Topsakal, Oguzhan},
+  year    = {2023},
+  month   = {06},
+  pages   = {},
+  title   = {Teaching Algorithms Design Approaches via Interactive Jupyter Notebooks},
+  journal = {European Journal of Technic},
+  doi     = {10.36222/ejt.1320404}
+}
+
+
+@article{Kumwichar,
+  author  = {Kumwichar, Ponlagrit},
+  year    = {2023},
+  month   = {05},
+  pages   = {e47394},
+  title   = {Enhancing Learning About Epidemiological Data Analysis Using R for Graduate Students in Medical Fields With Jupyter Notebook: Classroom Action Research},
+  volume  = {9},
+  journal = {JMIR medical education},
+  doi     = {10.2196/47394}
+}
+
+@article{Suárez2021,
+  author  = {Suárez, Andrés and Arce, Elena and Álvarez Hernández, María and Fernández Gavilanes, Milagros},
+  year    = {2021},
+  month   = {02},
+  pages   = {},
+  title   = {Teaching structural analysis theory with Jupyter Notebooks},
+  volume  = {29},
+  journal = {Computer Applications in Engineering Education},
+  doi     = {10.1002/cae.22383}
+}
+
+
+@inbook{Fruchart2022,
+  author  = {Fruchart, Mathilde and Guinhouya, Benjamin and Pelayo, Sylvia and Vilhelm, Christian and Lamer, Antoine},
+  year    = {2022},
+  month   = {05},
+  pages   = {},
+  title   = {Jupyter Notebooks for Introducing Data Science to Novice Users},
+  volume  = {294},
+  isbn    = {9781643682846},
+  journal = {Studies in health technology and informatics},
+  doi     = {10.3233/SHTI220598}
+}
+
+@article{Lyu2023,
+  author  = {Lyu, Mengye and Zhang, Yuan and Liu, Shaojun and Chen, Lingling},
+  year    = {2023},
+  month   = {11},
+  pages   = {556-561},
+  title   = {Adapting Jupyter for C++ Programming Education: An Empirical Study on Lab Instruction Strategies and Student Perspectives},
+  volume  = {4},
+  journal = {Contemporary Education and Teaching Research},
+  doi     = {10.61360/BoniCETR232015151101}
+}
+
+@article{Chen2022,
+  author  = {Chen, Enze and Asta, Mark},
+  year    = {2022},
+  month   = {09},
+  pages   = {},
+  title   = {Using Jupyter Tools to Design an Interactive Textbook to Guide Undergraduate Research in Materials Informatics},
+  volume  = {99},
+  journal = {Journal of Chemical Education},
+  doi     = {10.1021/acs.jchemed.2c00640}
+}
+
+@inbook{Liang2024,
+  author = {Liang, Yibao and Uehara, Minoru},
+  year   = {2024},
+  month  = {09},
+  pages  = {72-81},
+  title  = {Jupyter-Based Java Development Environment for Programming Education},
+  isbn   = {978-3-031-70010-1},
+  doi    = {10.1007/978-3-031-70011-8_7}
+}
+
+@unknown{Tufino2024,
+  author = {Tufino, Eugenio and Oss, S. and Alemani, Micol},
+  year   = {2024},
+  month  = {05},
+  pages  = {},
+  title  = {Using Jupyter Notebooks to foster computational skills and professional practice in an introductory physics lab course},
+  doi    = {10.48550/arXiv.2405.16675}
+}
+
+@article{Ruiz-Sarmiento2021,
+  author  = {Ruiz-Sarmiento, J.R. and Molero, Samuel Felipe and González-Jiménez, Javier},
+  year    = {2021},
+  month   = {01},
+  pages   = {917},
+  title   = {Jupyter Notebooks in Undergraduate Mobile Robotics Courses: Educational Tool and Case Study},
+  volume  = {11},
+  journal = {Applied Sciences},
+  doi     = {10.3390/app11030917}
+}
+
+@article{Sutrini2022,
+  author  = {Sutrini, Claudio and Passaro, Davide and Pallotta, F},
+  year    = {2022},
+  month   = {08},
+  pages   = {},
+  title   = {The potential of using Jupyter Notebook in physics education: Experimentation for high school students},
+  journal = {Nuovo Cimento- Societa Italiana di Fisica Sezione C},
+  doi     = {10.1393/ncc/i2022-22229-x}
+}
+
+@article{Suárez2018,
+  author  = {Suárez, Andrés and Arce, Elena and Fernández-González, Raquel},
+  year    = {2018},
+  month   = {03},
+  pages   = {},
+  title   = {Teaching optimization of manufacturing problems via code components of a Jupyter Notebook},
+  volume  = {26},
+  journal = {Computer Applications in Engineering Education},
+  doi     = {10.1002/cae.21941}
+}
+
+@article{Nwulu2021,
+  author  = {Nwulu, Nnamdi and Damisa, Uyikumhe and Gbadamosi, Saheed},
+  year    = {2021},
+  month   = {01},
+  pages   = {78},
+  title   = {Students Perception about the Use of Jupyter Notebook in Power Systems Education},
+  volume  = {11},
+  journal = {International Journal of Engineering Pedagogy (iJEP)},
+  doi     = {10.3991/ijep.v11i1.14769}
+}
+
+@article{Gupta2023,
+  author  = {Gupta, Yash and Kirana, Satwika and Homchan, Somjit and Tanasarnpaiboon, Supatcharee},
+  year    = {2023},
+  month   = {05},
+  pages   = {},
+  title   = {Teaching Python programming for bioinformatics with Jupyter notebook in the Post-COVID-19 era},
+  volume  = {51},
+  journal = {Biochemistry and molecular biology education : a bimonthly publication of the International Union of Biochemistry and Molecular Biology},
+  doi     = {10.1002/bmb.21746}
+}
+
+@article{González-Sierra2024,
+  author  = {González-Sierra, Jaime and Trujillo-Franco, Luis and Abundis-Fong, Hugo},
+  year    = {2024},
+  month   = {10},
+  pages   = {},
+  title   = {A Jupyter Notebook for teaching mathematical modeling with experiments},
+  volume  = {32},
+  journal = {Computer Applications in Engineering Education},
+  doi     = {10.1002/cae.22801}
+}
+
+@techreport{Schul2024,
+  author      = {Schul, P.},
+  title       = {Les effectifs en classes préparatoires aux grandes écoles à la rentrée 2023-2024},
+  institution = {Ministère de l'Enseignement Supérieur et de la Recherche, Service de l'information et des études statistiques (SIES)},
+  year        = {2024},
+  number      = {2024-03},
+  type        = {Note flash du SIES},
+  url         = {https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2024-02/nf-sies-2024-03-31638.pdf}
 }
