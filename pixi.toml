@@ -14,7 +14,7 @@ name = "xeus-ocaml"
 # A list of conda channels to search for packages.
 # Pixi searches these channels in the specified order.
 channels = [
-    "https://repo.prefix.dev/emscripten-forge-dev", # Provides Emscripten (WASM) specific packages.
+    "https://prefix.dev/emscripten-forge-4x", # Provides Emscripten (WASM) specific packages.
     "conda-forge",
 ]
 
@@ -127,7 +127,7 @@ platforms = ["emscripten-wasm32"]
 
 [feature.kernel.dependencies]
 # The core C++ framework for writing Jupyter kernels.
-xeus = "*"
+xeus = ">=6.0.0,<7.0.0"
 
 
 #==============================================================================
