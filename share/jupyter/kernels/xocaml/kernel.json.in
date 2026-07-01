@@ -7,6 +7,7 @@
   ],
   
   "language": "ocaml",
+  "kernel_protocol_version": "5.6.0",
   "metadata": {"debugger": false,
   "shared": @XEUS_OCAML_SHARED_METADATA@
   }

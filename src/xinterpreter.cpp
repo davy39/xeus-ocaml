@@ -286,15 +286,20 @@ namespace xeus_ocaml
     }
 
     // Handles a `shutdown_request`.
-    void interpreter::shutdown_request_impl() {}
+    nl::json interpreter::shutdown_request_impl(bool /*restart*/)
+    {
+        return xeus::create_shutdown_reply(false);
+    }
+
+    nl::json interpreter::interrupt_request_impl()
+    {
+        return xeus::create_interrupt_reply();
+    }
 
     // Provides information about the kernel.
     nl::json interpreter::kernel_info_request_impl()
     {
         nl::json result;
-        result["implementation"] = "xocaml";
-        result["implementation_version"] = XEUS_OCAML_VERSION;
-        result["language_info"]["version"] = "5.4.0";
 
     /* The jupyter-console banner for xeus-ocaml is the following:
        _  _ ____ _  _ ____    ____ ____ ____ _  _ _    
@@ -304,22 +309,29 @@ namespace xeus_ocaml
       xeus-OCaml: a Jupyter kernel for OCaml
            OCaml version: x.x.x
         */
-    
+
+        std::string version = "5.4.0";
         std::string banner = ""
        "_  _ ____ _  _ ____    ____ ____ ____ _  _ _     \n"
        " \\/  |___ |  | [__  __ |  | |    |__| |\\/| |     \n"
        "_/\\_ |___ |__| ___]    |__| |___ |  | |  | |___    \n"
        "\n"
        "    xeus-OCaml: a Jupyter kernel for OCaml \n"
-       "    OCaml version: ";
-              
-        banner.append(result["language_info"]["version"]);
+       "    OCaml version: " + version;
 
-        result["banner"] = banner;
-        result["language_info"]["name"] = "OCaml";
-        result["language_info"]["codemirror_mode"] = "text/x-ocaml";
-        result["language_info"]["mimetype"] = "text/x-ocaml";
-        result["language_info"]["file_extension"] = ".ml";
+
+        return xeus::create_info_reply(
+            "xocaml",
+            XEUS_OCAML_VERSION,
+            "OCaml",
+            version,
+            "text/x-ocaml",
+            ".ml",
+            "",
+            std::string("text/x-ocaml"),
+            "",
+            banner
+        );
         return result;
     }
 }
