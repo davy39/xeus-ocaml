@@ -43,7 +43,9 @@ build:
 
       cd ocaml
       #ln -s $DUNE_CACHE_DIR/dune.lock dune.lock
-      opam init --disable-sandboxing --no --compiler=5.4.0
+      opam init --disable-sandboxing --no --bare
+      opam switch create conda 5.4.0
+      eval $(opam env --switch=conda)
       opam install dune 
       opam exec -- dune pkg lock
       rm -rf $DUNE_CACHE_DIR/default
