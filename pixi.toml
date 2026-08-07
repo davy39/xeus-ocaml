@@ -264,7 +264,8 @@ build-docs-cpp = { cmd = "mkdir -p docs/build/doxygen && doxygen docs/doxygen/Do
 
 # Run Odoc to generate HTML from OCaml sources
 build-docs-ocaml = { cmd = """
-opam init --disable-sandboxing --no --compiler=5.4.0 && 
+unset OPAMSWITCH && \
+opam init --disable-sandboxing --no --compiler=5.4.0 && \ 
 opam install dune && \
 opam exec -- dune pkg lock --root ocaml && \
 opam exec -- dune build --root ocaml @doc && \
