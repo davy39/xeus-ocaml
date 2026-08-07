@@ -252,8 +252,9 @@ platforms = ["linux-64"]
 
 [feature.docs.dependencies]
 doxygen = "*"
-sphinx = "*"
-breathe = "*"
+# Breathe 4.36 supports Sphinx 7.2–8.x; Sphinx 9 removed APIs Breathe needs.
+sphinx = ">=7.2,<9"
+breathe = ">=4.36"
 opam = "*"
 furo = "*"
 [feature.docs.tasks]
