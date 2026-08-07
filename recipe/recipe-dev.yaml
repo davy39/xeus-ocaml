@@ -1,5 +1,6 @@
 context:
-  version: 0.2.6 # Set in include/xeus_ocaml_config.hpp
+  version: 0.2.9       # Single source: pixi.toml [workspace].version
+  ocaml_version: 5.5.0 # Single source: pixi.toml [workspace].ocaml_version
 
 package:
   name: xeus-ocaml
@@ -34,7 +35,7 @@ build:
       export OPAMROOT=$SRC_DIR/opam_root
 
       cd ocaml
-      opam init --disable-sandboxing --no --compiler=5.4.0
+      opam init --disable-sandboxing --no --compiler=${{ ocaml_version }}
       opam install dune
       opam exec -- dune pkg lock
       opam exec -- dune build --profile dev

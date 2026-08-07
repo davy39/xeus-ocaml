@@ -10,6 +10,11 @@
 [workspace]
 # The name of the project.
 name = "xeus-ocaml"
+# Single source of truth for the project version.
+# sync_version.py propagates it to include/xeus_ocaml_config.hpp,
+# recipe/recipe-prod.yaml, recipe/recipe-dev.yaml and ocaml/dune-project.
+# Bump it here only.
+version = "0.2.9"
 
 # A list of conda channels to search for packages.
 # Pixi searches these channels in the specified order.
@@ -51,7 +56,7 @@ xorg-xproto = "*" # System dependencies required by some OCaml libraries.
 # Initializes the OPAM environment and installs locked dependencies.
 setup = { cmd = """
 rm -rf $OPAMROOT && \
-opam init --disable-sandboxing --no --compiler=5.3.0 && 
+opam init --disable-sandboxing --no --compiler=$XEUS_OCAML_OCAML_VERSION && \ 
 opam install dune && \
 opam exec -- dune pkg lock
 """, cwd = "ocaml" }
@@ -265,7 +270,7 @@ build-docs-cpp = { cmd = "mkdir -p docs/build/doxygen && doxygen docs/doxygen/Do
 # Run Odoc to generate HTML from OCaml sources
 build-docs-ocaml = { cmd = """
 unset OPAMSWITCH && \
-opam init --disable-sandboxing --no --compiler=5.4.0 && \ 
+opam init --disable-sandboxing --no --compiler=$XEUS_OCAML_OCAML_VERSION && \ 
 opam install dune && \
 opam exec -- dune pkg lock --root ocaml && \
 opam exec -- dune build --root ocaml @doc && \
@@ -325,3 +330,6 @@ extension = { features = ["extension"] }
 OCAML_DIR = "$PIXI_PROJECT_ROOT/ocaml"
 # Sets the root directory for the OCaml Package Manager (OPAM).
 OPAMROOT = "$PIXI_PROJECT_ROOT/.opam"
+# Single source of truth for the OCaml compiler version used by the
+# opam switches (recipes and pixi tasks). Bump it here only.
+XEUS_OCAML_OCAML_VERSION = "5.5.0"
