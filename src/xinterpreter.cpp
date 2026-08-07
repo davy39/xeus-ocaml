@@ -310,7 +310,7 @@ namespace xeus_ocaml
            OCaml version: x.x.x
         */
 
-        std::string version = "5.4.0";
+        std::string version = XEUS_OCAML_OCAML_VERSION;
         std::string banner = ""
        "_  _ ____ _  _ ____    ____ ____ ____ _  _ _     \n"
        " \\/  |___ |  | [__  __ |  | |    |__| |\\/| |     \n"

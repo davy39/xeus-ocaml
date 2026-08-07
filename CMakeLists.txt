@@ -22,6 +22,12 @@ foreach (ver ${version_defines})
         set(XEUS_OCAML_VERSION_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}" CACHE INTERNAL "")
     endif ()
 endforeach ()
+
+file(STRINGS "${XEUS_OCAML_INCLUDE_DIR}/xeus_ocaml_config.hpp" ocaml_version_define
+     REGEX "#define XEUS_OCAML_OCAML_VERSION ")
+if (ocaml_version_define MATCHES "#define XEUS_OCAML_OCAML_VERSION \"?([^\" ]+)\"?")
+    set(XEUS_OCAML_OCAML_VERSION "${CMAKE_MATCH_1}" CACHE INTERNAL "")
+endif ()
 set(${PROJECT_NAME}_VERSION
     ${XEUS_OCAML_VERSION_MAJOR}.${XEUS_OCAML_VERSION_MINOR}.${XEUS_OCAML_VERSION_PATCH})
 message(STATUS "Building xeus-ocaml v${${PROJECT_NAME}_VERSION}")

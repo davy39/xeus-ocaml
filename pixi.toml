@@ -14,7 +14,7 @@ name = "xeus-ocaml"
 # sync_version.py propagates it to include/xeus_ocaml_config.hpp,
 # recipe/recipe-prod.yaml, recipe/recipe-dev.yaml and ocaml/dune-project.
 # Bump it here only.
-version = "0.2.9"
+version = "0.2.10"
 
 # A list of conda channels to search for packages.
 # Pixi searches these channels in the specified order.

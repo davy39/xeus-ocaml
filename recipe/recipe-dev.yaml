@@ -1,5 +1,5 @@
 context:
-  version: 0.2.9       # Single source: pixi.toml [workspace].version
+  version: 0.2.10      # Single source: pixi.toml [workspace].version
   ocaml_version: 5.5.0 # Single source: pixi.toml [workspace].ocaml_version
 
 package:

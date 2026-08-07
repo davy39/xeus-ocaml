@@ -1,5 +1,5 @@
 {
-  "display_name": "ocaml 5.4.0",
+  "display_name": "ocaml @XEUS_OCAML_OCAML_VERSION@",
   "argv": [
       "@XEUS_OCAML_KERNELSPEC_PATH@xocaml",
       "-f",

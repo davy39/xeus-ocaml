@@ -7,7 +7,7 @@
 ;; This stanza contains all the metadata and dependencies from your .opam file
 (package
  (name xocaml) ; This should match the project name
- (version 0.2.9) ; You should add a version for your project
+ (version 0.2.10) ; You should add a version for your project
  (synopsis "Editor helper for completion, typing and source browsing for the web")
  (description
   "Merlin is an assistant for editing OCaml code. It aims to provide the features available in modern browsers: error reporting, auto completion, source browsing and much more.")
