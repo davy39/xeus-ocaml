@@ -125,6 +125,7 @@ jobs:
           cmd: yq e '.context.version' 'recipe/recipe-prod.yaml'
 
       - name: Create and Push Tag
+        id: create_tag
         run: |
           VERSION=${{ steps.get_version.outputs.result }}
           TAG="v${VERSION}"
@@ -132,12 +133,14 @@ jobs:
           
           if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
             echo "Tag ${TAG} already exists remotely. No new tag will be created."
+            echo "created=false" >> $GITHUB_OUTPUT
           else
             echo "Tag ${TAG} does not exist. Creating and pushing new tag."
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git tag "${TAG}" -m "Release version ${VERSION}"
             git push origin "${TAG}"
+            echo "created=true" >> $GITHUB_OUTPUT
           fi
       # Not needed now that Xeus-ocaml is on emscripten-forge-4x   
       # - name: Setup Pixi (for upload command)
@@ -151,6 +154,7 @@ jobs:
       #   run: pixi run upload-kernel
 
       - name: Create GitHub Release and Upload Assets
+        if: steps.create_tag.outputs.created == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.result }}
