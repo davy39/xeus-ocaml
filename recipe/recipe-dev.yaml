@@ -28,43 +28,37 @@ build:
   script:
   - |
     (
-      # --- We need to disable wasm related flags for caml ---
-      unset CC CXX CFLAGS CXXFLAGS LDFLAGS # Need nativ builders
-      # --- Ocaml cache dir outside work directory to be kept between builds ---
-      OPAM_CACHE_DIR=$SRC_DIR/../opam_cache
-      DUNE_CACHE_DIR=$SRC_DIR/../dune_cache
-      
-      # Create cache path if they don't exist
-      mkdir -p $OPAM_CACHE_DIR
-      #mkdir -p $DUNE_CACHE_DIR/dune.lock
-
-      # Configure opam to use cache dir
-      export OPAMROOT=$OPAM_CACHE_DIR
+      # --- Disable OCaml-related wasm flags: OCaml needs native builders ---
+      unset CC CXX CFLAGS CXXFLAGS LDFLAGS OPAMSWITCH
+      # --- Private opam root built into the source tree (no cross-build caching) ---
+      export OPAMROOT=$SRC_DIR/opam_root
 
       cd ocaml
-      #ln -s $DUNE_CACHE_DIR/dune.lock dune.lock
       opam init --disable-sandboxing --no --compiler=5.4.0
-      opam install dune 
+      opam install dune
       opam exec -- dune pkg lock
-      rm -rf $DUNE_CACHE_DIR/default
-      opam exec -- dune build --profile dev --build-dir $DUNE_CACHE_DIR
+      opam exec -- dune build --profile dev
     )
 
 
   - rm -rf ocaml-build
   - mkdir -p ocaml-build
-  - cp -r ../dune_cache/default/src/* ocaml-build/
+  - cp -r ocaml/_build/default/src/* ocaml-build/
     # =========================================================================
-    # PHASE 2: Build WASM kernel with caching
+    # PHASE 2: Build the WASM kernel into the source tree
     # =========================================================================
-    # Create the C++ build directory outside of the source tree
-  - CXX_BUILD_DIR=$SRC_DIR/../cxx_cache
-  - mkdir -p $CXX_BUILD_DIR
-  - cd $CXX_BUILD_DIR
+  - mkdir -p build-cmake
+  - cd build-cmake
 
     # Configure CMake from the new directory, pointing back to the source.
     # The `-S` flag in modern CMake is perfect for this.
   - |
+    # Clear the host (native) LDFLAGS: CMake reads LDFLAGS into the linker flags,
+    # and the native `-Wl,--no-pie/--sort-common/--as-needed` flags are rejected
+    # by wasm-ld.
+    unset LDFLAGS
+    # wasm-opt (binaryen) has no rpath; it needs the build/link env libs.
+    export LD_LIBRARY_PATH="$PREFIX/lib:$BUILD_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     cmake -S $SRC_DIR -GNinja ${CMAKE_ARGS}    \
         -DCMAKE_BUILD_TYPE=Debug               \
         -DCMAKE_PREFIX_PATH=$PREFIX            \
