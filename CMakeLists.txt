@@ -316,7 +316,6 @@ xeus_wasm_link_options(xocaml "web,worker")
 
 #
 target_link_options(xocaml
-    PUBLIC --bind
     PUBLIC "SHELL: -s WASM_BIGINT=1"
     PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
     PUBLIC "SHELL: -s MAIN_MODULE=1"
