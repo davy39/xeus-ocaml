@@ -27,8 +27,8 @@ You can use pixi to install jupyterlite, and then the xeus-ocaml wasm kernel :
 ```bash
 curl -fsSL https://pixi.sh/install.sh | sh
 mkdir my_jupyterlite && cd my_jupyterlite
-printf "name: xeus-ocaml\nchannels:\n  - https://prefix.dev/emscripten-forge-dev\ndependencies:\n  - xeus-ocaml\n" > environment.yml
-pixi init -c conda-forge -c https://repo.prefix.dev/emscripten-forge-dev
+printf "name: xeus-ocaml\nchannels:\n  - https://prefix.dev/emscripten-forge-4x\ndependencies:\n  - xeus-ocaml\n" > environment.yml
+pixi init -c conda-forge -c https://repo.prefix.dev/emscripten-forge-4x
 pixi add jupyterlite-core jupyterlite-xeus
 pixi run jupyter lite serve --XeusAddon.environment_file=environment.yml
 ```
