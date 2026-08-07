@@ -194,7 +194,7 @@ install-kernel = """
 rm -rf .pixi/envs/kernel && \
 micromamba create -y -p .pixi/envs/kernel --platform emscripten-wasm32 \
     -c file://$PIXI_PROJECT_ROOT/output \
-    -c https://repo.prefix.dev/emscripten-forge-dev \
+    -c https://repo.prefix.dev/emscripten-forge-4x \
     -c conda-forge \
     $PIXI_PROJECT_ROOT/output/emscripten-wasm32/xeus-ocaml-*.conda \
     emscripten-abi xeus
