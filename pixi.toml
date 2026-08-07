@@ -184,12 +184,20 @@ rattler-build build --recipe recipe/recipe-prod.yaml \
 # Uploads the newly built kernel package to a private prefix.dev channel.
 upload-kernel = "rattler-build upload prefix --api-key=$PREFIX_API_KEY -c xeus-ocaml output/emscripten-wasm32/xeus-ocaml*"
 
-# Installs the locally built kernel package into the dedicated 'kernel' environment.
+# Installs the locally built kernel package into the dedicated 'kernel' prefix.
 # This makes it available for JupyterLite to bundle.
+# Run directly with micromamba (not `pixi run -e kernel`) because the 'kernel'
+# env is emscripten-wasm32-only and cannot be executed on a linux-64 host.
+# The exact built package is passed by file path (not by name) so CI always
+# experiments on the artifact it just produced, never a newer published one.
 install-kernel = """
-rm -rf .pixi/envs/kernel && \ 
-micromamba clean -a -y && \
-pixi run -e kernel micromamba install -y --offline --no-channel-priority $PIXI_PROJECT_ROOT/output/emscripten-wasm32/xeus-ocaml*.conda
+rm -rf .pixi/envs/kernel && \
+micromamba create -y -p .pixi/envs/kernel --platform emscripten-wasm32 \
+    -c file://$PIXI_PROJECT_ROOT/output \
+    -c https://repo.prefix.dev/emscripten-forge-dev \
+    -c conda-forge \
+    $PIXI_PROJECT_ROOT/output/emscripten-wasm32/xeus-ocaml-*.conda \
+    emscripten-abi xeus
 """
 
 # Builds the static JupyterLite website.
