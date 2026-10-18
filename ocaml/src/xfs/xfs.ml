@@ -188,6 +188,9 @@ let mount_drive () =
             Js.Unsafe.inject whence;
           |]
       in
+      let pos_fd_impl () =
+        Js.Unsafe.get stream (Js.string "position")
+      in
       let truncate_fd_impl len =
         ignore
           (Js.Unsafe.meth_call (get_fs ()) "ftruncate"
@@ -203,6 +206,7 @@ let mount_drive () =
           ("length", Js.Unsafe.inject (Js.wrap_callback length_fd_impl));
           ("close", Js.Unsafe.inject (Js.wrap_callback close_fd_impl));
           ("seek", Js.Unsafe.inject (Js.wrap_callback seek_fd_impl));
+          ("pos", Js.Unsafe.inject (Js.wrap_callback pos_fd_impl));
           ("truncate", Js.Unsafe.inject (Js.wrap_callback truncate_fd_impl));
           ( "err_closed",
             Js.Unsafe.inject
