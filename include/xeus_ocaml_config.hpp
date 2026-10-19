@@ -12,7 +12,7 @@
 // Project version
 #define XEUS_OCAML_VERSION_MAJOR 0
 #define XEUS_OCAML_VERSION_MINOR 2
-#define XEUS_OCAML_VERSION_PATCH 10
+#define XEUS_OCAML_VERSION_PATCH 11
 
 // OCaml compiler version (single source of truth: pixi.toml [activation.env])
 #define XEUS_OCAML_OCAML_VERSION "5.5.0"
