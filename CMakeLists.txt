@@ -98,6 +98,7 @@ OPTION(XEUS_OCAML_USE_SHARED_XEUS_OCAML "Link xocaml  with the xeus shared libra
 
 if(EMSCRIPTEN)
     add_compile_definitions(XEUS_OCAML_EMSCRIPTEN_WASM_BUILD)
+    set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
     message("Build with emscripten")
     SET(XEUS_OCAML_BUILD_STATIC ON)
     SET(XEUS_OCAML_BUILD_SHARED OFF)
